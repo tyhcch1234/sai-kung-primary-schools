@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>西貢區小學全景分析 2026／27｜小六人數・班級結構・學校特色・社交平台・宣傳策略</title>
+<meta name="description" content="整合家校會《小學概覽 2026》與教育局學校名冊，分析西貢區（95 校網）27 間小學的小六學生人數、各級班數、學校特色、社交平台連結與招生宣傳策略。">
+<style>
+:root{
+  --bg:#f5f6f2; --panel:#ffffff; --ink:#16211d; --ink-2:#4a5a54; --ink-3:#7d8d87;
+  --line:#e2e6df; --accent:#0f6f62; --accent-2:#c2703c; --accent-3:#2b5d8a;
+  --chip:#eef3ef; --warn:#b4530a; --radius:14px;
+  --shadow:0 1px 2px rgba(20,35,30,.06),0 8px 24px rgba(20,35,30,.06);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","PingFang HK","Microsoft JhengHei",sans-serif;
+  line-height:1.65;-webkit-font-smoothing:antialiased}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+
+/* nav */
+nav{position:sticky;top:0;z-index:50;background:rgba(245,246,242,.9);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;gap:18px;height:54px}
+nav .brand{font-weight:800;letter-spacing:.02em;font-size:14px;color:var(--accent)}
+nav ul{display:flex;gap:14px;list-style:none;margin:0;padding:0;overflow-x:auto;scrollbar-width:none}
+nav ul::-webkit-scrollbar{display:none}
+nav ul a{font-size:13px;color:var(--ink-2);white-space:nowrap}
+nav ul a:hover{color:var(--accent);text-decoration:none}
+
+/* hero */
+header.hero{padding:52px 0 26px;background:
+  radial-gradient(1100px 420px at 12% -10%, #dcebe4 0%, rgba(220,235,228,0) 62%),
+  radial-gradient(900px 400px at 88% 0%, #efe4d6 0%, rgba(239,228,214,0) 60%)}
+.eyebrow{font-size:12.5px;letter-spacing:.14em;color:var(--accent);font-weight:700;text-transform:uppercase}
+h1{font-size:clamp(28px,4.4vw,44px);line-height:1.22;margin:10px 0 12px;letter-spacing:-.01em;font-weight:800}
+h1 em{font-style:normal;color:var(--accent)}
+.lede{font-size:16px;color:var(--ink-2);max-width:760px;margin:0}
+.meta{margin-top:18px;display:flex;flex-wrap:wrap;gap:8px}
+.badge{font-size:12px;padding:5px 10px;border-radius:999px;background:var(--panel);border:1px solid var(--line);color:var(--ink-2)}
+
+/* KPI */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin:28px 0 8px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow)}
+.kpi .n{font-size:30px;font-weight:800;letter-spacing:-.02em;line-height:1.1;font-variant-numeric:tabular-nums}
+.kpi .n small{font-size:14px;font-weight:600;color:var(--ink-3);margin-left:2px}
+.kpi .l{font-size:12.5px;color:var(--ink-2);margin-top:4px}
+.kpi .d{font-size:11.5px;color:var(--ink-3);margin-top:6px}
+.kpi.accent .n{color:var(--accent)}
+.kpi.warn .n{color:var(--warn)}
+
+/* sections */
+section{padding:46px 0 6px}
+section > .wrap > h2{font-size:clamp(21px,2.6vw,28px);margin:0 0 6px;letter-spacing:-.01em}
+.sub{color:var(--ink-2);font-size:14.5px;margin:0 0 22px;max-width:820px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}
+.grid2{display:grid;grid-template-columns:1.35fr 1fr;gap:18px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:900px){.grid2,.grid3{grid-template-columns:1fr}}
+
+/* chart helpers */
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--ink-2);margin-bottom:14px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:middle}
+.bars{display:flex;flex-direction:column;gap:7px}
+.bar-row{display:grid;grid-template-columns:132px 1fr 46px;align-items:center;gap:10px;font-size:12.5px}
+.bar-row .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink-2)}
+.bar-track{background:#eef1ea;border-radius:6px;height:14px;position:relative;overflow:hidden}
+.bar-fill{position:absolute;left:0;top:0;bottom:0;border-radius:6px;background:var(--accent);transition:width .6s cubic-bezier(.2,.7,.3,1)}
+.bar-fill.alt{background:var(--accent-2)}
+.bar-row .v{text-align:right;font-variant-numeric:tabular-nums;font-weight:700;color:var(--ink)}
+@media(max-width:600px){.bar-row{grid-template-columns:96px 1fr 40px}}
+
+/* heatmap */
+.heat{width:100%;border-collapse:separate;border-spacing:0;font-size:12.5px}
+.heat th,.heat td{padding:7px 6px;text-align:center;border-bottom:1px solid var(--line)}
+.heat th{font-size:11.5px;color:var(--ink-3);font-weight:600;position:sticky;top:54px;background:var(--bg);z-index:2}
+.heat td.nm{text-align:left;white-space:nowrap;font-size:12.5px;color:var(--ink)}
+.heat td.c{border-radius:6px;font-variant-numeric:tabular-nums;font-weight:700}
+.heat tr:hover td{background:#f8faf6}
+.scroll{overflow-x:auto}
+
+/* table */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--panel);box-shadow:var(--shadow)}
+table.roster{width:100%;border-collapse:collapse;font-size:13px;min-width:960px}
+table.roster th{text-align:left;font-size:11.5px;letter-spacing:.04em;color:var(--ink-3);font-weight:700;
+  padding:12px 12px;border-bottom:1px solid var(--line);background:#fbfcf9;position:sticky;top:0;white-space:nowrap;cursor:pointer;user-select:none}
+table.roster th:hover{color:var(--accent)}
+table.roster td{padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
+table.roster tr:last-child td{border-bottom:none}
+table.roster tr:hover td{background:#fafbf7}
+.sn{font-weight:700}
+.sn small{display:block;font-weight:400;color:var(--ink-3);font-size:11px;letter-spacing:.02em}
+.num{text-align:right;font-variant-numeric:tabular-nums}
+.pill{display:inline-block;font-size:11px;padding:2px 8px;border-radius:999px;background:var(--chip);color:var(--ink-2);white-space:nowrap}
+.pill.gov{background:#e7eef7;color:#2b5d8a}
+.pill.dss{background:#f7ece0;color:#a15a26}
+.pill.rel{background:#f0ecf7;color:#5b4a86}
+
+/* filters */
+.filters{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+.filters input[type=search]{flex:1 1 220px;min-width:180px;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel);font-size:13px}
+.filters select{padding:9px 10px;border:1px solid var(--line);border-radius:10px;background:var(--panel);font-size:13px;color:var(--ink-2)}
+.chip{border:1px solid var(--line);background:var(--panel);padding:7px 12px;border-radius:999px;font-size:12.5px;color:var(--ink-2);cursor:pointer}
+.chip.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* school cards */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px}
+.sc{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:10px}
+.sc h3{margin:0;font-size:16px;line-height:1.35}
+.sc .en{font-size:11px;color:var(--ink-3);letter-spacing:.02em;margin-top:-6px}
+.sc .tags{display:flex;gap:6px;flex-wrap:wrap}
+.sc .sum{font-size:13px;color:var(--ink-2);margin:0}
+.sc .facts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;background:#fafbf7;border-radius:10px;padding:10px}
+.sc .facts div{font-size:11px;color:var(--ink-3)}
+.sc .facts b{display:block;font-size:15px;color:var(--ink);font-variant-numeric:tabular-nums}
+.sc .links{display:flex;gap:6px;flex-wrap:wrap;margin-top:auto;padding-top:4px}
+.slink{font-size:11.5px;padding:4px 9px;border-radius:8px;border:1px solid var(--line);color:var(--ink-2);background:#fff}
+.slink:hover{border-color:var(--accent);color:var(--accent);text-decoration:none}
+.slink.off{opacity:.45;pointer-events:none;text-decoration:line-through}
+.sc .note{font-size:11.5px;color:var(--ink-3);border-top:1px dashed var(--line);padding-top:8px}
+
+/* matrix */
+table.mx{width:100%;border-collapse:collapse;font-size:13px;min-width:720px}
+table.mx th,table.mx td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:center}
+table.mx th{font-size:11.5px;color:var(--ink-3);font-weight:700;background:#fbfcf9}
+table.mx td.nm{text-align:left;font-weight:600}
+.tick{color:var(--accent);font-weight:800}
+.dash{color:#c9d1c9}
+.cnt{font-size:11px;color:var(--ink-3);margin-left:4px}
+
+/* insight blocks */
+.ins{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:10px;padding:16px 18px}
+.ins h4{margin:0 0 6px;font-size:14.5px}
+.ins p{margin:0;font-size:13px;color:var(--ink-2)}
+.ins.amber{border-left-color:var(--accent-2)}
+.ins.blue{border-left-color:var(--accent-3)}
+ul.tight{margin:8px 0 0;padding-left:18px;font-size:13px;color:var(--ink-2)}
+ul.tight li{margin:4px 0}
+
+/* misc */
+footer{margin-top:52px;padding:28px 0 60px;border-top:1px solid var(--line);font-size:12.5px;color:var(--ink-3)}
+footer b{color:var(--ink-2)}
+.note-box{font-size:12.5px;color:var(--ink-3);background:#fbfcf9;border:1px dashed var(--line);border-radius:10px;padding:14px 16px}
+.hl{background:linear-gradient(180deg,transparent 62%,#d9ecdf 62%);font-weight:700}
+@media print{nav{display:none}body{background:#fff}}
+</style>
+</head>
+<body>
+
+<nav><div class="wrap">
+  <span class="brand">西貢區小學分析</span>
+  <ul>
+    <li><a href="#overview">全景</a></li>
+    <li><a href="#classes">班級結構</a></li>
+    <li><a href="#roster">學校名冊</a></li>
+    <li><a href="#profiles">學校特色</a></li>
+    <li><a href="#social">社交平台</a></li>
+    <li><a href="#promo">宣傳策略</a></li>
+    <li><a href="#method">資料說明</a></li>
+  </ul>
+</div></nav>
+
+<header class="hero"><div class="wrap">
+  <div class="eyebrow">Sai Kung District · 95 校網 · 2026／27</div>
+  <h1>西貢區小學全景：<em>27 間</em>學校的規模、特色與招生戰場</h1>
+  <p class="lede">把小六學生人數、各級班數、辦學特色、社交平台與宣傳策略放在同一張圖上，看西貢區（將軍澳、西貢市、坑口、清水灣一帶）小學的收生壓力與品牌策略。</p>
+  <div class="meta">
+    <span class="badge">資料來源：家校會《小學概覽 2026》＋教育局小一學校網名冊</span>
+    <span class="badge">班級結構：2025／26 實際、2026／27 教育局批核</span>
+    <span class="badge">整理日期：2026-11-01</span>
+  </div>
+  <div class="kpis" id="kpis"></div>
+</div></header>
+
+<section id="overview"><div class="wrap">
+  <h2>全景：一區兩極的收生現實</h2>
+  <p class="sub">西貢區 27 間小學中，23 間為官津學校（95 校網），4 間為直資。全區小一由 2025／26 的 103 班減至 2026／27 的 98 班，但學校之間差距極大——8 間學校滿額 30 班以上，6 間不足 13 班。</p>
+  <div class="grid2">
+    <div class="card">
+      <div class="legend"><span><i style="background:#0f6f62"></i>2025／26 全校班數</span><span><i style="background:#c2703c"></i>2026／27 批核班數</span></div>
+      <div class="bars" id="chartScale"></div>
+    </div>
+    <div class="card">
+      <h3 style="margin:0 0 4px;font-size:15px">規模分佈</h3>
+      <p style="margin:0 0 14px;font-size:12.5px;color:var(--ink-3)">以 2025／26 全校班數計</p>
+      <div class="bars" id="chartSize"></div>
+      <div class="note-box" style="margin-top:16px">全區 627 班，2026／27 減至 616 班（−11 班）。減班集中在小校：志蓮、李少欽、基德、將官、景林、陳耀星合共減少 18 班，由安博官立（新校增至 12 班）及真道（+5 班）部分抵銷。</div>
+    </div>
+  </div>
+</div></section>
+
+<section id="classes"><div class="wrap">
+  <h2>各級班數與小六規模</h2>
+  <p class="sub">下表為 2025／26 學年各校小一至小六的實際班數。顏色越深代表該級班數越多；最右兩欄為小六班數及按每班 25 人推算的小六學生人數（95 校網官津小學行小班教學）。</p>
+  <div class="card" style="padding:14px">
+    <div class="scroll"><table class="heat" id="heat"></table></div>
+  </div>
+  <div class="grid2" style="margin-top:18px">
+    <div class="card">
+      <h3 style="margin:0 0 12px;font-size:15px">小六班數排行（2025／26）</h3>
+      <div class="bars" id="chartP6"></div>
+    </div>
+    <div class="card">
+      <h3 style="margin:0 0 12px;font-size:15px">小一收生變化（2025／26 → 2026／27）</h3>
+      <div class="bars" id="chartP1"></div>
+      <p style="font-size:12px;color:var(--ink-3);margin:12px 0 0">只有 4 間學校 2026／27 小一班數增加，其餘不變或減少；減少最多的為李少欽（4→2）與志蓮（3→2）。</p>
+    </div>
+  </div>
+</div></section>
+
+<section id="roster"><div class="wrap">
+  <h2>學校名冊</h2>
+  <p class="sub">可搜尋、篩選及按欄排序。班數為 2025／26 實際數字；「小六人數」為按每班 25 人推算。</p>
+  <div class="filters">
+    <input type="search" id="q" placeholder="搜尋學校名稱、辦學團體、地區…">
+    <select id="fType"><option value="">全部類別</option><option>資助</option><option>官立</option><option>直資</option></select>
+    <select id="fRel"><option value="">全部宗教</option></select>
+    <select id="fArea"><option value="">全部地區</option></select>
+    <button class="chip" id="fShrink">只看縮班學校</button>
+  </div>
+  <div class="tablewrap"><table class="roster" id="roster"></table></div>
+  <p style="font-size:12px;color:var(--ink-3);margin-top:10px" id="rosterCount"></p>
+</div></section>
+
+<section id="profiles"><div class="wrap">
+  <h2>學校特色一覽</h2>
+  <p class="sub">按辦學宗旨、學校關注事項及課程策略歸納，每校一句定位＋四個關鍵詞。括號內為一條龍／聯繫中學關係。</p>
+  <div class="cards" id="cards"></div>
+</div></section>
+
+<section id="social"><div class="wrap">
+  <h2>社交平台：誰在經營，誰還是空白</h2>
+  <p class="sub">逐間學校官網及公開搜尋核對，只列出可確認的官方帳號連結。空白代表未見公開專頁，不代表學校沒有對外溝通——多數仍依賴官網、eClass 內聯網及家長通訊。</p>
+  <div class="grid2">
+    <div class="card"><div class="bars" id="chartSocial"></div></div>
+    <div class="card" style="display:flex;flex-direction:column;justify-content:center">
+      <div class="ins"><h4>平台選擇很「香港」，但已見分化</h4>
+      <p>Facebook 仍是最普及的平台（16 間），YouTube 次之（11 間），Instagram 10 間。小紅書只有 4 間（景林、將官、陳耀星、安博），全部位於將軍澳，反映部分學校已針對內地來港家庭做內容。</p></div>
+      <div class="ins amber" style="margin-top:12px"><h4>9 間學校沒有公開社交專頁</h4>
+      <p>包括 3 間直資（播道、優才、陸慶濤）與 2 間老牌津校（聖安德肋、將天）。直資因收生自決、靠簡介會與報名系統，社交投入反而最少。</p></div>
+    </div>
+  </div>
+  <div class="tablewrap" style="margin-top:18px"><table class="mx" id="matrix"></table></div>
+</div></section>
+
+<section id="promo"><div class="wrap">
+  <h2>宣傳策略：四種打法</h2>
+  <p class="sub">把「有無社交平台」、「有無開放日／簡介會」、「有無校園電視台」、「官網招生資訊密度」四個維度交叉，西貢區小學大致可分四類。</p>
+  <div class="grid2">
+    <div class="card"><div class="bars" id="chartPromo"></div>
+      <p style="font-size:12px;color:var(--ink-3);margin:14px 0 0">以學校官網及公開資料可觀察到的招生動作計。</p></div>
+    <div>
+      <div class="ins"><h4>① 全方位品牌型（約 6 間）</h4><p>四平台齊備或有校園電視台，開放日／體驗日與影片內容同步。代表：仁濟陳耀星（官網 11 處提及開放日、13 處插班）、景林天主教（FB／IG／YT／小紅書）、將軍澳官立、聖公會基德。</p></div>
+      <div class="ins blue" style="margin-top:12px"><h4>② 內容穩重型（約 8 間）</h4><p>有 FB 專頁及 YouTube 影片，但以活動花絮為主，較少針對收生設計內容。代表：宣基、黃藻森、明道、港澳信義會、王余家潔、田家炳。</p></div>
+      <div class="ins amber" style="margin-top:12px"><h4>③ 官網獨大型（約 9 間）</h4><p>沒有社交專頁，靠官網公告、eClass 與家長口耳相傳。代表：聖安德肋、將軍澳天主教、梁潔華、循道衛理、陸慶濤。</p></div>
+      <div class="ins" style="margin-top:12px;border-left-color:#7d8d87"><h4>④ 收生自決型（4 間直資）</h4><p>播道、優才、陸慶濤、真道以簡介會、報名系統及面試流程為核心，社交平台不是主戰場，但學費與課程定位本身就是品牌。</p></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:18px">
+    <h3 style="margin:0 0 10px;font-size:15px">給學校的三個觀察</h3>
+    <ul class="tight">
+      <li><b>縮班學校最需要「被看見」。</b>6 間縮班 2 班或以上的學校中，3 間沒有 Instagram，2 間沒有 YouTube 頻道——收生壓力與數位能見度呈反向關係。</li>
+      <li><b>影片是這區的共同語言。</b>11 間設 YouTube 頻道、8 間有校園電視台，家長已習慣用影片判斷校風；沒有影片的學校在自行分配學位階段較難突圍。</li>
+      <li><b>小紅書是將軍澳特有的變數。</b>4 間使用小紅書的學校全部在將軍澳市中心／寶琳一帶，目標是內地來港、跨境及高才通家庭，內容以校園環境、普通話語境與升中派位為主。</li>
+    </ul>
+  </div>
+</div></section>
+
+<section id="method"><div class="wrap">
+  <h2>資料說明與限制</h2>
+  <div class="grid2">
+    <div class="card">
+      <h3 style="margin:0 0 8px;font-size:14.5px">資料來源</h3>
+      <ul class="tight">
+        <li>家校會《小學概覽 2026》西貢區全區學校資料（2026 年 9 月 1 日修訂）：班級結構、教師人數、課室數目、辦學宗旨、學校特色、家校合作等。</li>
+        <li>教育局「小一學校網」95 校網選校名冊：學校類別、宗教、自行分配學位學額、地址。</li>
+        <li>各校官方網站首頁及公開頁面：社交平台連結、招生活動關鍵詞（開放日、簡介會、體驗日、插班、小一入學）。</li>
+        <li>公開搜尋結果：核對未能從官網直接取得的社交帳號。</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3 style="margin:0 0 8px;font-size:14.5px">重要限制</h3>
+      <ul class="tight">
+        <li><b>小六學生人數為推算值</b>（小六班數 × 25 人）。《小學概覽》只公布班數，不公布各級實際學生人數；25 人為 95 校網小班教學的標準班額，實際每班可能因統一派位加派而略高。</li>
+        <li>2026／27 班數為教育局於 2026 年 3／4 月批核的數字，最終開班數可能微調。</li>
+        <li>社交平台只列出可確認的官方帳號；部分學校的專頁設為私人或未被搜尋引擎索引，可能被歸為「未見」。</li>
+        <li>「宣傳策略」分類為基於公開觀察的分析框架，非學校官方定位。</li>
+      </ul>
+    </div>
+  </div>
+</div></section>
+
+<footer><div class="wrap">
+  <b>西貢區小學全景分析</b>　資料整理：2026-11-01　｜　班級結構：家校會《小學概覽 2026》　｜　學校名冊：教育局 95 校網<br>
+  本頁為公開資料整理與分析，選校決定請以學校官方公布及最新《小學概覽》為準。
+</div></footer>
+
+<script>
+const DATA = [{"id": 0, "name": "基督教神召會梁省德小學", "name_en": "", "net": "95", "finance": "資助", "gender": "男女", "religion": "基督教", "area": "將軍澳（寶琳／坑口）", "address": "新界將軍澳文曲里2號", "phone": "21911929", "email": "aoglsttko@lsttko.edu.hk", "website": "http://www.lsttko.edu.hk", "supervisor": "張鴻華先生", "principal": "張麗君女士", "sponsor": "竹園區神召會", "motto": "忠孝勤誠", "founded": "1997", "language": "中文及英文", "site_area": "約8500平方米", "through": "-", "classrooms": "30", "teachers": "52", "classes25": {"P1": 4, "P2": 4, "P3": 4, "P4": 4, "P5": 4, "P6": 5, "total": 25}, "classes26": {"P1": 4, "P2": 4, "P3": 4, "P4": 4, "P5": 4, "P6": 4, "total": 24}, "p6": 5, "p6_est": 125, "total_est": 625, "summary": "基督教全人教育，設「零家課計劃」及小一至小二「零測考」，以 AI 輔助教學與 Pointant 獎勵 App 推動正面行為。", "tags": ["小班教學", "零家課", "AI 教學", "基督教"], "social": {"facebook": "https://www.facebook.com/pages/%E5%9F%BA%E7%9D%A3%E6%95%99%E7%A5%9E%E5%8F%AC%E6%9C%83%E6%A2%81%E7%9C%81%E5%BE%B7%E5%B0%8F%E5%AD%B8/486515371422961", "youtube": "https://www.youtube.com/user/lsttkoedu"}, "promo": {"open_day": false, "briefing": false, "campus_tv": false, "alumni": true, "note": "官網以家長 App、Pointant 獎勵系統作日常溝通，社交平台以 FB 群組及 YouTube 頻道為主"}}, {"id": 1, "name": "佛教志蓮小學", "name_en": "", "net": "95", "finance": "資助", "gender": "男女", "religion": "佛教", "area": "將軍澳（市中心）", "address": "新界將軍澳唐俊街1號", "phone": "22463959", "email": "office@chilinbps.edu.hk", "website": "http://www.chilinbps.edu.hk", "supervisor": "徹女法師", "principal": "羅金源先生", "sponsor": "志蓮淨苑", "motto": "信解行證", "founded": "1999", "language": "中文", "site_area": "約6311平方米", "through": "-", "classrooms": "31", "teachers": "45", "classes25": {"P1": 3, "P2": 3, "P3": 3, "P4": 4, "P5": 4, "P6": 5, "total": 22}, "classes26": {"P1": 2, "P2": 3, "P3": 3, "P4": 3, "P5": 4, "P6": 4, "total": 19}, "p6": 5, "p6_est": 125, "total_est": 550, "summary": "以「一切為學生、不放棄一人」為核心，課堂以 AI 分析學習數據找出難點，並以 AI 探究式學習推動自主學習。", "tags": ["AI 教學", "探究學習", "佛教", "閱讀"], "social": {"facebook": "https://www.facebook.com/Chilinbps", "instagram": "https://www.instagram.com/clbps_official/"}, "promo": {"open_day": false, "briefing": false, "campus_tv": false, "alumni": true, "note": "官網設「小一入學」專區及插班資訊，FB／IG 同步發放校園生活相片"}}, {"id": 2, "name": "基督教宣道會宣基小學", "name_en": "", "net": "95", "finance": "資助", "gender": "男女", "religion": "基督教", "area": "將軍澳（尚德）", "address": "新界將軍澳尚德邨", "phone": "21916996", "email": "info@sunkei.edu.hk", "website": "http://www.sunkei.edu.hk", "supervisor": "龐憶華先生", "principal": "劉心怡女士", "sponsor": "基督教宣道會香港區聯會有限公司", "motto": "信、望、愛", "founded": "1998", "language": "中文", "site_area": "約6200平方米", "through": "-", "classrooms": "30", "teachers": "55", "classes25": {"P1": 5, "P2": 5, "P3": 5, "P4": 5, "P5": 5, "P6": 5, "total": 30}, "classes26": {"P1": 5, "P2": 5, "P3": 5, "P4": 5, "P5": 5, "P6": 5, "total": 30}, "p6": 5, "p6_est": 125, "total_est": 750, "summary": "以 LCM（生命教育、校本課程、多元智能）為辦學特色，重視自主學習與關愛文化，是 95 網最受歡迎學校之一。", "tags": ["生命教育", "自主學習", "多元智能", "熱門"], "social": {"facebook": "https://www.facebook.com/skps.tko", "instagram": "https://www.instagram.com/sunkeips/"}, "promo": {"open_day": false, "briefing": false, "campus_tv": true, "alumni": true, "note": "設校園電視台及 YouTube 影片，FB 專頁配合 IG 發佈活動"}}, {"id": 3, "name": "安博官立小學", "name_en": "", "net": "95", "finance": "官立", "gender": "男女", "religion": "不適用", "area": "西貢市", "address": "新界西貢安禧街8號", "phone": "23661530", "email": "egpsinfo@edb.gov.hk", "website": "https://www.egps.edu.hk", "supervisor": "", "principal": "", "sponsor": "政府", "motto": "仁愛誠信 博學利群", "founded": "2025", "language": "中文", "site_area": "約6000平方米", "through": "", "classrooms": "30", "teachers": "17", "classes25": {"P1": 1, "P2": 2, "P3": 1, "P4": 1, "P5": 1, "P6": 1, "total": 7}, "classes26": {"P1": 3, "P2": 2, "P3": 3, "P4": 2, "P5": 1, "P6": 1, "total": 12}, "p6": 1, "p6_est": 25, "total_est": 175, "summary": "2025 年新辦官立小學，主打創科教育與「國際教室」外語課程（法語／西班牙語），以智能科技專題貫穿學習。", "tags": ["新校", "創科", "國際教室", "官立"], "social": {"instagram": "https://www.instagram.com/egps.official/", "xiaohongshu": "https://xhslink.com/m/36gEsr5iT2U"}, "promo": {"open_day": false, "briefing": false, "campus_tv": false, "alumni": false, "note": "新校以 IG 及小紅書（內地家長市場）作主要招生渠道"}}, {"id": 4, "name": "香海正覺蓮社佛教黃藻森學校", "name_en": "", "net": "95", "finance": "資助", "gender": "男女", "religion": "佛教", "area": "將軍澳（寶琳）", "address": "新界將軍澳景林邨", "phone": "26234773", "email": "school@bwcss.edu.hk", "website": "http://www.bwcss.edu.hk", "supervisor": "", "principal": "", "sponsor": "香海正覺蓮社", "motto": "覺正行儀", "founded": "1995", "language": "中文（包括：普通話）及英文", "site_area": "約6500平方米", "through": "香海正覺蓮社佛教正覺中學", "classrooms": "30", "teachers": "32", "classes25": {"P1": 2, "P2": 2, "P3": 2, "P4": 3, "P5": 3, "P6": 3, "total": 15}, "classes26": {"P1": 2, "P2": 2, "P3": 2, "P4": 2, "P5": 3, "P6": 3, "total": 14}, "p6": 3, "p6_est": 75, "total_est": 375, "summary": "佛化教育結合電子及科技教育，每年辦境外交流團；與香海正覺蓮社佛教正覺中學「一條龍」。", "tags": ["一條龍", "電子學習", "境外交流", "佛教"], "social": {"facebook": "https://www.facebook.com/bwcss/", "youtube": "https://www.youtube.com/channel/UCqatMHGZcfnGbolYitIsk6Q"}, "promo": {"open_day": true, "briefing": false, "campus_tv": false, "alumni": true, "note": "官網列開放日資訊，FB 專頁 + YouTube 頻道發佈活動影片"}}, {"id": 5, "name": "港澳信義會明道小學", "name_en": "", "net": "95", "finance": "資助", "gender": "男女", "religion": "基督教", "area": "將軍澳（調景嶺）", "address": "新界將軍澳彩明苑彩明街七號", "phone": "31294294", "email": "mtps@hkmlc-mtps.edu.hk", "website": "http://www.hkmlc-mtps.edu.hk", "supervisor": "張毅先生", "principal": "陳文芳女士", "sponsor": "港澳信義會有限公司", "motto": "身心齊共長", "founded": "1992", "language": "中文", "site_area": "約12000平方米", "through": "", "classrooms": "30", "teachers": "56", "classes25": {"P1": 5, "P2": 5, "P3": 5, "P4": 5, "P5": 5, "P6": 5, "total": 30}, "classes26": {"P1": 5, "P2": 5, "P3": 5, "P4": 5, "P5": 5, "P6": 5, "total": 30}, "p6": 5, "p6_est": 125, "total_est": 750, "summary": "基督精神辦學，以閱讀計劃、35 分鐘教節及電子學習工具照顧學習多樣性，設校園電視台。", "tags": ["閱讀", "電子學習", "校園電視台", "基督教"], "social": {"facebook": "https://www.facebook.com/hkmlcmtps1/", "instagram": "https://www.instagram.com/hkmlcmtps/", "youtube": "https://www.youtube.com/channel/UCOOoKn2lVOnNVutxpMIGL9Q"}, "promo": {"open_day": false, "briefing": false, "campus_tv": true, "alumni": true, "note": "校園電視台影片上載 YouTube 頻道，FB／IG 雙軌經營"}}, {"id": 6, "name": "港澳信義會小學", "name_en": "", "net": "95", "finance": "資助", "gender": "男女", "religion": "基督教", "area": "將軍澳（寶琳）", "address": "新界將軍澳集福路4號", "phone": "27019803", "email": "info@hkmlcps.edu.hk", "website": "http://www.hkmlcps.edu.hk", "supervisor": "", "principal": "", "sponsor": "港澳信義會有限公司", "motto": "身心齊共長", "founded": "1991", "language": "中文及英文", "site_area": "約7000平方米", "through": "", "classrooms": "30", "teachers": "57", "classes25": {"P1": 5, "P2": 5, "P3": 5, "P4": 5, "P5": 5, "P6": 5, "total": 30}, "classes26": {"P1": 5, "P2": 5, "P3": 5, "P4": 5, "P5": 5, "P6": 5, "total": 30}, "p6": 5, "p6_est": 125, "total_est": 750, "summary": "以「自主探究知識增」為關注事項，高參與課堂配合思維工具與獎勵計劃，建立自學階梯。", "tags": ["自主學習", "高參與課堂", "基督教"], "social": {"facebook": "https://www.facebook.com/hkmlcps1/", "youtube": "https://www.youtube.com/channel/UCWUZGtgyg5ITz5wWE-aYB_w"}, "promo": {"open_day": false, "briefing": false, "campus_tv": false, "alumni": true, "note": "官網設面試及申請資訊，FB 專頁 + YouTube 頻道"}}, {"id": 7, "name": "景林天主教小學", "name_en": "", "net": "95", "finance": "資助", "gender": "男女", "religion": "天主教", "area": "將軍澳（寶琳）", "address": "新界將軍澳景林邨", "phone": "27030499", "email": "klcps@klcps.edu.hk", "website": "http://www.klcps.edu.hk", "supervisor": "謝錦明先生", "principal": "何詠懿女士", "sponsor": "聖母聖心會", "motto": "明心", "founded": "1990", "language": "中文（包括：普通話）及英文", "site_area": "約4520平方米", "through": "-", "classrooms": "24", "teachers": "24", "classes25": {"P1": 1, "P2": 1, "P3": 1, "P4": 1, "P5": 2, "P6": 3, "total": 9}, "classes26": {"P1": 0, "P2": 1, "P3": 1, "P4": 1, "P5": 1, "P6": 2, "total": 6}, "p6": 3, "p6_est": 75, "total_est": 225, "summary": "聖母聖心會辦學，推正向教育；中英文閱讀課程（「閱‧劇」、PLP-R&W）與雙語 STEAM 教材並行，設校園電視台。", "tags": ["正向教育", "STEAM", "閱讀", "天主教"], "social": {"facebook": "https://www.facebook.com/klcps", "instagram": "https://www.instagram.com/kinglamcps", "youtube": "https://www.youtube.com/@KLCPScampustv", "xiaohongshu": "https://www.xiaohongshu.com/user/profile/68245f0b000000000a03e98f"}, "promo": {"open_day": false, "briefing": false, "campus_tv": true, "alumni": true, "note": "四平台齊備（FB／IG／YouTube／小紅書），以校園電視台影片作主要內容"}}, {"id": 8, "name": "樂善堂劉德學校", "name_en": "", "net": "95", "finance": "資助", "gender": "男女", "religion": "不適用", "area": "將軍澳（寶琳）", "address": "新界將軍澳寶林邨", "phone": "27013072", "email": "mail@lautak.edu.hk", "website": "http://www.lautak.edu.hk", "supervisor": "温文蕙女士", "principal": "許志民先生", "sponsor": "九龍樂善堂", "motto": "仁、愛、勤、誠", "founded": "1989", "language": "中文", "site_area": "約4520平方米", "through": "-", "classrooms": "24", "teachers": "32", "classes25": {"P1": 2, "P2": 3, "P3": 3, "P4": 2, "P5": 2, "P6": 2, "total": 14}, "classes26": {"P1": 2, "P2": 2, "P3": 3, "P4": 3, "P5": 2, "P6": 2, "total": 14}, "p6": 2, "p6_est": 50, "total_est": 350, "summary": "藝術教育（陶藝、戲劇、音樂）與服務學習並重，低小設 LBD「感．創．做」、高小推 DreamStarter 童夢啟航。", "tags": ["藝術教育", "DreamStarter", "服務學習"], "social": {"facebook": "https://www.facebook.com/LSTLTAA", "instagram": "https://www.instagram.com/lstltps/"}, "promo": {"open_day": false, "briefing": false, "campus_tv": false, "alumni": true, "note": "官網設小一入學及插班專頁，FB 由校友會經營，IG 發佈學生活動"}}, {"id": 9, "name": "保良局馮晴紀念小學", "name_en": "", "net": "95", "finance": "資助", "gender": "男女", "religion": "不適用", "area": "將軍澳（市中心）", "address": "新界將軍澳培成路2號", "phone": "27066620", "email": "fcs@plkfcmps.edu.hk", "website": "http://www.plkfcmps.edu.hk", "supervisor": "", "principal": "", "sponsor": "保良局", "motto": "愛敬勤誠", "founded": "1996", "language": "中文", "site_area": "約7000平方米", "through": "-", "classrooms": "30", "teachers": "58", "classes25": {"P1": 5, "P2": 5, "P3": 5, "P4": 5, "P5": 5, "P6": 5, "total": 30}, "classes26": {"P1": 5, "P2": 5, "P3": 5, "P4": 5, "P5": 5, "P6": 5, "total": 30}, "p6": 5, "p6_est": 125, "total_est": 750, "summary": "全人教育，合作學習與專題研習入正規時間表，設服務學習及多元智能課，是 95 網家長熱門選擇。", "tags": ["合作學習", "專題研習", "熱門"], "social": {"facebook": "https://www.facebook.com/plkfcmpsaa/"}, "promo": {"open_day": false, "briefing": false, "campus_tv": false, "alumni": true, "note": "以校友會 FB 專頁作主要社交陣地，官網集中公告"}}, {"id": 10, "name": "保良局黃永樹小學", "name_en": "", "net": "95", "finance": "資助", "gender": "男女", "religion": "不適用", "area": "將軍澳（市中心）", "address": "新界將軍澳唐賢街2號", "phone": "21770050", "email": "info@plkwws.edu.hk", "website": "http://www.plkwws.edu.hk", "supervisor": "何猷亨先生", "principal": "陳瑞良先生", "sponsor": "保良局", "motto": "愛、敬、勤、誠", "founded": "1999", "language": "中文", "site_area": "約7000平方米", "through": "-", "classrooms": "30", "teachers": "56", "classes25": {"P1": 5, "P2": 5, "P3": 5, "P4": 5, "P5": 5, "P6": 5, "total": 30}, "classes26": {"P1": 5, "P2": 5, "P3": 5, "P4": 5, "P5": 5, "P6": 5, "total": 30}, "p6": 5, "p6_est": 125, "total_est": 750, "summary": "以「愛、敬、勤、誠」推五育質素圈，運用 AI 及電子工具發展數字素養，並以「幸福校園」為發展方向。", "tags": ["價值觀教育", "AI 工具", "幸福感"], "social": {"youtube": "https://youtube.com/@plkppc"}, "promo": {"open_day": true, "briefing": false, "campus_tv": false, "alumni": true, "note": "官網列開放日，YouTube 頻道為主，未設 FB／IG 專頁"}}, {"id": 11, "name": "博愛醫院陳國威小學", "name_en": "", "net": "95", "finance": "資助", "gender": "男女", "religion": "不適用", "area": "將軍澳（尚德）", "address": "新界將軍澳尚德邨", "phone": "21785700", "email": "info@pohckwps.edu.hk", "website": "http://www.pohckwps.edu.hk", "supervisor": "", "principal": "", "sponsor": "博愛醫院", "motto": "博文愛德", "founded": "1998", "language": "中文", "site_area": "約6000平方米", "through": "-", "classrooms": "30", "teachers": "32", "classes25": {"P1": 2, "P2": 2, "P3": 2, "P4": 2, "P5": 2, "P6": 3, "total": 13}, "classes26": {"P1": 2, "P2": 2, "P3": 2, "P4": 2, "P5": 2, "P6": 2, "total": 12}, "p6": 3, "p6_est": 75, "total_est": 325, "summary": "啟發潛能教育為本，小一中英數設雙科任、粵教中與普教中班別供家長選擇，英文科大圖書教學。", "tags": ["啟發潛能", "雙科任", "語文政策"], "social": {"facebook": "https://www.facebook.com/pohckwpsaa", "youtube": "https://www.youtube.com/channel/UCr1Yp6LW2Upl6vBQ7HQ3o_Q/"}, "promo": {"open_day": false, "briefing": true, "campus_tv": false, "alumni": true, "note": "設小一體驗日及入學資訊，FB 校友會專頁 + YouTube 頻道"}}, {"id": 12, "name": "西貢中心李少欽紀念學校", "name_en": "", "net": "95", "finance": "資助", "gender": "男女", "religion": "不適用", "area": "西貢市", "address": "新界西貢市惠民路18號", "phone": "27916681", "email": "info@lsy.edu.hk", "website": "http://lsy.edu.hk", "supervisor": "吳仕福先生", "principal": "吳楚強先生", "sponsor": "西貢中心李少欽紀念學校", "motto": "毅敏仁義", "founded": "1995", "language": "中文及英文", "site_area": "約8500平方米", "through": "-", "classrooms": "30", "teachers": "50", "classes25": {"P1": 4, "P2": 3, "P3": 4, "P4": 4, "P5": 4, "P6": 5, "total": 24}, "classes26": {"P1": 2, "P2": 4, "P3": 3, "P4": 4, "P5": 4, "P6": 4, "total": 21}, "p6": 5, "p6_est": 125, "total_est": 600, "summary": "重視兩文三語，設中英文班及每天功課輔導；以跨學科閱讀及價值觀教育為年度關注事項。", "tags": ["中英文班", "功課輔導", "閱讀"], "social": {"facebook": "https://www.facebook.com/61573040084408/", "youtube": "https://www.youtube.com/@SKCLSYMS_TV"}, "promo": {"open_day": false, "briefing": false, "campus_tv": false, "alumni": true, "note": "以 FB 專頁（新帳號）及校園電視台 YouTube 頻道發佈"}}, {"id": 13, "name": "西貢崇真天主教學校（小學部）", "name_en": "", "net": "95", "finance": "資助", "gender": "男女", "religion": "天主教", "area": "西貢市", "address": "新界西貢普通道F座G座", "phone": "27922246", "email": "info@stcps.edu.hk", "website": "http://www.stcps.edu.hk", "supervisor": "潘子光神父", "principal": "李家敏女士", "sponsor": "天主教香港教區", "motto": "謙愛勤誠", "founded": "1924", "language": "中文（包括：普通話）及英文", "site_area": "約15000平方米", "through": "西貢崇真天主教學校（中學部）", "classrooms": "16", "teachers": "31", "classes25": {"P1": 3, "P2": 2, "P3": 2, "P4": 2, "P5": 2, "P6": 2, "total": 13}, "classes26": {"P1": 2, "P2": 3, "P3": 2, "P4": 2, "P5": 2, "P6": 2, "total": 13}, "p6": 2, "p6_est": 50, "total_est": 325, "summary": "1924 年創校，西貢歷史最悠久的學校；全校普教中，配聲情朗讀與高效識字課程，與中學部「一條龍」。", "tags": ["一條龍", "普教中", "歷史悠久", "天主教"], "social": {"facebook": "https://www.facebook.com/%E8%A5%BF%E8%B2%A2%E5%B4%87%E7%9C%9F%E5%A4%A9%E4%B8%BB%E6%95%99%E5%AD%B8%E6%A0%A1-%E5%B0%8F%E5%AD%B8%E9%83%A8-107134291120359/"}, "promo": {"open_day": true, "briefing": true, "campus_tv": false, "alumni": true, "note": "設開放日及簡介會，FB 專頁為主要對外渠道"}}, {"id": 14, "name": "聖公會將軍澳基德小學", "name_en": "", "net": "95", "finance": "資助", "gender": "男女", "religion": "基督教", "area": "將軍澳（寶琳）", "address": "將軍澳寶康路82號", "phone": "23206066", "email": "tkokt@tkokt.edu.hk", "website": "http://www.tkokt.edu.hk", "supervisor": "郭始基先生", "principal": "鄺嘉文女士", "sponsor": "聖公宗（香港）小學", "motto": "非以役人，乃役於人", "founded": "2004", "language": "中文", "site_area": "約6100平方米", "through": "-", "classrooms": "30", "teachers": "35", "classes25": {"P1": 1, "P2": 1, "P3": 1, "P4": 2, "P5": 2, "P6": 4, "total": 11}, "classes26": {"P1": 0, "P2": 1, "P3": 1, "P4": 1, "P5": 2, "P6": 2, "total": 7}, "p6": 4, "p6_est": 100, "total_est": 275, "summary": "以「非以役人 乃役於人」為校訓，推 STEAM 跨學科課程與全方位閱讀，校園電視台活躍。", "tags": ["STEAM", "閱讀", "基督教"], "social": {"facebook": "https://www.facebook.com/tkokt.edu.hk", "instagram": "https://www.instagram.com/tkokt.edu.hk/", "youtube": "https://www.youtube.com/channel/UChPGPvfzmU_BmjAG_R-QHhg/"}, "promo": {"open_day": false, "briefing": false, "campus_tv": true, "alumni": true, "note": "FB／IG／YouTube 三平台齊備，校園電視台定期出片"}}, {"id": 15, "name": "天主教聖安德肋小學", "name_en": "", "net": "95", "finance": "資助", "gender": "男女", "religion": "天主教", "area": "將軍澳（調景嶺）", "address": "新界將軍澳翠嶺路30號", "phone": "22463313", "email": "info@sacps.edu.hk", "website": "http://www.sacps.edu.hk", "supervisor": "馮賜豪神父", "principal": "陳善科先生", "sponsor": "天主教香港教區", "motto": "愛化主民", "founded": "1961", "language": "中文（包括：普通話）及英文", "site_area": "約9600平方米", "through": "-", "classrooms": "30", "teachers": "57", "classes25": {"P1": 5, "P2": 5, "P3": 5, "P4": 5, "P5": 5, "P6": 5, "total": 30}, "classes26": {"P1": 5, "P2": 5, "P3": 5, "P4": 5, "P5": 5, "P6": 5, "total": 30}, "p6": 5, "p6_est": 125, "total_est": 750, "summary": "重視兩文三語與「語境教學」，英文科設 T3／C3／CEO 閱讀計劃，下午「學藝樂繽紛」設智能增值課及 STEAM。", "tags": ["語境教學", "學藝時段", "STEAM", "天主教"], "social": {}, "promo": {"open_day": false, "briefing": false, "campus_tv": false, "alumni": true, "note": "未見公開社交專頁，以官網影片庫及內聯網向家長發佈"}}, {"id": 16, "name": "順德聯誼總會梁潔華小學", "name_en": "", "net": "95", "finance": "資助", "gender": "男女", "religion": "不適用", "area": "將軍澳（市中心）", "address": "新界將軍澳貿泰路二號", "phone": "26233628", "email": "stfalkwps@lkw.edu.hk", "website": "http://www.lkw.edu.hk", "supervisor": "盧應銘先生", "principal": "尹少琴女士", "sponsor": "順德聯誼總會", "motto": "文行忠信", "founded": "1996", "language": "中文", "site_area": "約5250平方米", "through": "-", "classrooms": "30", "teachers": "55", "classes25": {"P1": 5, "P2": 5, "P3": 5, "P4": 5, "P5": 5, "P6": 5, "total": 30}, "classes26": {"P1": 5, "P2": 5, "P3": 5, "P4": 5, "P5": 5, "P6": 5, "total": 30}, "p6": 5, "p6_est": 125, "total_est": 750, "summary": "初小推 Space Town 英語及中英文大圖書教學，高小設拔尖增潤課程，學術與體藝並重。", "tags": ["英語", "體藝", "拔尖"], "social": {}, "promo": {"open_day": false, "briefing": false, "campus_tv": false, "alumni": true, "note": "未設專頁，官網以 YouTube 影片嵌入呈現校園生活"}}, {"id": 17, "name": "將軍澳天主教小學", "name_en": "", "net": "95", "finance": "資助", "gender": "男女", "religion": "天主教", "area": "將軍澳（市中心）", "address": "新界將軍澳唐賢街6號", "phone": "26235679", "email": "info@tkocps.edu.hk", "website": "http://www.tkocps.edu.hk", "supervisor": "韋沐恩神父", "principal": "馬一龍先生", "sponsor": "聖母聖心會", "motto": "勤、敏、愛、誠", "founded": "1990", "language": "中文", "site_area": "約6000平方米", "through": "-", "classrooms": "30", "teachers": "56", "classes25": {"P1": 5, "P2": 5, "P3": 5, "P4": 5, "P5": 5, "P6": 5, "total": 30}, "classes26": {"P1": 5, "P2": 5, "P3": 5, "P4": 5, "P5": 5, "P6": 5, "total": 30}, "p6": 5, "p6_est": 125, "total_est": 750, "summary": "普教中、英文科採 RWI，數學科滲入英文工作紙，六年級下學期加入初中英數銜接課程。", "tags": ["普教中", "英語銜接", "數理", "天主教"], "social": {}, "promo": {"open_day": false, "briefing": false, "campus_tv": true, "alumni": true, "note": "設校園電視台及影片專頁，未見 FB／IG 官方專頁"}}, {"id": 18, "name": "將軍澳官立小學", "name_en": "", "net": "95", "finance": "官立", "gender": "男女", "religion": "不適用", "area": "將軍澳（坑口）", "address": "新界將軍澳厚德邨第二期", "phone": "27012886", "email": "tkogps@edb.gov.hk", "website": "http://www.tkogps.edu.hk", "supervisor": "", "principal": "", "sponsor": "政府", "motto": "勤、誠、儉", "founded": "1993", "language": "中文（包括：普通話）及英文", "site_area": "約5000平方米", "through": "", "classrooms": "30", "teachers": "47", "classes25": {"P1": 3, "P2": 2, "P3": 3, "P4": 4, "P5": 3, "P6": 5, "total": 20}, "classes26": {"P1": 2, "P2": 3, "P3": 2, "P4": 3, "P5": 4, "P6": 3, "total": 17}, "p6": 5, "p6_est": 125, "total_est": 500, "summary": "官立小學，一至六年級設成長及生涯規劃課，推資優教育普及化，以電子學習培養高階思維。", "tags": ["官立", "資優教育", "生涯規劃"], "social": {"facebook": "https://www.facebook.com/p/%E5%B0%87%E8%BB%8D%E6%BE%B3%E5%AE%98%E7%AB%8B%E5%B0%8F%E5%AD%B8-61552426284612/", "instagram": "https://www.instagram.com/tkogps.edu.hk/", "xiaohongshu": "https://www.xiaohongshu.com/user/profile/678da2f1000000000e0105c2"}, "promo": {"open_day": true, "briefing": false, "campus_tv": true, "alumni": true, "note": "官立學校中較積極：開放日、校園電視台、FB／IG／小紅書三平台"}}, {"id": 19, "name": "將軍澳循道衛理小學", "name_en": "", "net": "95", "finance": "資助", "gender": "男女", "religion": "基督教", "area": "將軍澳（市中心）", "address": "新界將軍澳唐俊街15號", "phone": "27060770", "email": "email@tkomps.edu.hk", "website": "https://www.tkomps.edu.hk", "supervisor": "黎婉雯女士", "principal": "林德育先生", "sponsor": "香港基督教循道衞理聯合教會", "motto": "篤信至善，互愛勤賢", "founded": "2004", "language": "中文", "site_area": "約12030平方米", "through": "-", "classrooms": "36", "teachers": "72", "classes25": {"P1": 6, "P2": 6, "P3": 6, "P4": 6, "P5": 6, "P6": 6, "total": 36}, "classes26": {"P1": 6, "P2": 6, "P3": 6, "P4": 6, "P5": 6, "P6": 6, "total": 36}, "p6": 6, "p6_est": 150, "total_est": 900, "summary": "全區最大規模（每級 6 班），以「愛學愛思」及「高參與、多互動、多展示、多回饋」課堂模式見稱。", "tags": ["大校", "高參與課堂", "基督教"], "social": {}, "promo": {"open_day": false, "briefing": true, "campus_tv": false, "alumni": true, "note": "設小一簡介會，官網影片嵌入為主，未設社交專頁"}}, {"id": 20, "name": "東華三院王余家潔紀念小學", "name_en": "", "net": "95", "finance": "資助", "gender": "男女", "religion": "不適用", "area": "將軍澳（市中心）", "address": "新界將軍澳學林里8號", "phone": "27061336", "email": "wyjjps@tungwah.org.hk", "website": "http://www.wyjjmps.edu.hk", "supervisor": "李曠怡先生", "principal": "鄭敏嫻女士", "sponsor": "東華三院", "motto": "勤儉忠信", "founded": "1996", "language": "中文", "site_area": "約11130平方米", "through": "-", "classrooms": "30", "teachers": "58", "classes25": {"P1": 5, "P2": 5, "P3": 5, "P4": 5, "P5": 5, "P6": 5, "total": 30}, "classes26": {"P1": 5, "P2": 5, "P3": 5, "P4": 5, "P5": 5, "P6": 5, "total": 30}, "p6": 5, "p6_est": 125, "total_est": 750, "summary": "東華三院屬校，以電子白板及平板輔助教學，跨科學習與境外交流豐富學習經歷。", "tags": ["電子學習", "跨科學習", "交流"], "social": {}, "promo": {"open_day": true, "briefing": false, "campus_tv": true, "alumni": true, "note": "設開放日及校園電視台，YouTube 播放清單取代社交專頁"}}, {"id": 21, "name": "仁濟醫院陳耀星小學", "name_en": "", "net": "95", "finance": "資助", "gender": "男女", "religion": "不適用", "area": "將軍澳（坑口）", "address": "新界將軍澳第二期三十四區煜明苑", "phone": "27061932", "email": "info@ychcisps.edu.hk", "website": "http://www.ychcisps.edu.hk", "supervisor": "陳湛文先生", "principal": "陳兆東先生", "sponsor": "仁濟醫院", "motto": "尊仁濟世", "founded": "1996", "language": "中文（包括：普通話）及英文", "site_area": "約4000平方米", "through": "-", "classrooms": "30", "teachers": "26", "classes25": {"P1": 2, "P2": 1, "P3": 1, "P4": 1, "P5": 2, "P6": 3, "total": 10}, "classes26": {"P1": 1, "P2": 2, "P3": 1, "P4": 1, "P5": 1, "P6": 2, "total": 8}, "p6": 3, "p6_est": 75, "total_est": 250, "summary": "高小推行電子書包，增聘外籍英語老師（初小每周 4 節），精英班普教中；曾獲行政長官卓越教學獎嘉許。", "tags": ["英語", "電子書包", "獎項"], "social": {"facebook": "https://www.facebook.com/ychcisps", "instagram": "https://www.instagram.com/ychcisps", "youtube": "https://www.youtube.com/@ychcispshk", "xiaohongshu": "https://www.xiaohongshu.com/user/profile/666fc6390000000003031912"}, "promo": {"open_day": true, "briefing": false, "campus_tv": false, "alumni": true, "note": "招生訊息最密集：官網大量開放日／體驗日／插班帖，四平台齊備"}}, {"id": 22, "name": "仁愛堂田家炳小學", "name_en": "", "net": "95", "finance": "資助", "gender": "男女", "religion": "不適用", "area": "將軍澳（市中心）", "address": "新界將軍澳唐俊街3號", "phone": "24571302", "email": "office@yottkpps.edu.hk", "website": "http://www.yottkpps.edu.hk", "supervisor": "", "principal": "", "sponsor": "仁愛堂", "motto": "敦品力學，立己善群", "founded": "1999", "language": "中文", "site_area": "約6500平方米", "through": "-", "classrooms": "31", "teachers": "56", "classes25": {"P1": 5, "P2": 5, "P3": 5, "P4": 5, "P5": 5, "P6": 5, "total": 30}, "classes26": {"P1": 5, "P2": 5, "P3": 5, "P4": 5, "P5": 5, "P6": 5, "total": 30}, "p6": 5, "p6_est": 125, "total_est": 750, "summary": "以體驗式學習提升興趣，教師每周集體備課設計課程，並以價值觀教育建立品格素養。", "tags": ["體驗式學習", "價值觀教育"], "social": {"facebook": "https://www.facebook.com/profile.php?id=61594824203039", "instagram": "https://www.instagram.com/yottkpps_official", "youtube": "https://www.youtube.com/@yot-tkpps"}, "promo": {"open_day": false, "briefing": false, "campus_tv": false, "alumni": true, "note": "FB／IG／YouTube 三平台，IG 以 QR code 導流，內容以活動花絮為主"}}, {"id": 23, "name": "播道書院", "name_en": "", "net": "直資", "finance": "直資", "gender": "男女", "religion": "不適用", "area": "將軍澳（市中心）", "address": "香港新界將軍澳至善街七號", "phone": "23661802", "email": "admission@evangel.edu.hk", "website": "https://www.evangel.edu.hk/e_index.php", "supervisor": "", "principal": "", "sponsor": "中國基督教播道會總會", "motto": "播揚真理，道育幼苗", "founded": "2006", "language": "英文", "site_area": "約14380平方米", "through": "播道書院", "classrooms": "30", "teachers": "73", "classes25": {"P1": 5, "P2": 5, "P3": 5, "P4": 5, "P5": 5, "P6": 5, "total": 30}, "classes26": {"P1": 5, "P2": 5, "P3": 5, "P4": 5, "P5": 5, "P6": 5, "total": 30}, "p6": 5, "p6_est": 125, "total_est": 750, "summary": "直資英文小學，中小學「一條龍」；推 ACTS 全人教育及 MMA 學業框架，主張「人人皆資優」。", "tags": ["直資", "一條龍", "英文", "資優"], "social": {}, "promo": {"open_day": false, "briefing": false, "campus_tv": false, "alumni": false, "note": "直資收生自決，以官網入學申請系統為主，社交平台投入最少"}}, {"id": 24, "name": "優才（楊殷有娣）書院", "name_en": "", "net": "直資", "finance": "直資", "gender": "男女", "religion": "不適用", "area": "將軍澳（市中心）", "address": "新界將軍澳嶺光街１０號", "phone": "25356869", "email": "pri-tko@gtcollege.edu.hk", "website": "http://www.gtschool.hk", "supervisor": "", "principal": "", "sponsor": "優才志潔學校有限公司", "motto": "愛心、創意、勤奮", "founded": "1997", "language": "中文及英文", "site_area": "約7000平方米", "through": "優才（楊殷有娣）書院", "classrooms": "34", "teachers": "72", "classes25": {"P1": 4, "P2": 4, "P3": 4, "P4": 4, "P5": 4, "P6": 4, "total": 24}, "classes26": {"P1": 4, "P2": 4, "P3": 4, "P4": 4, "P5": 4, "P6": 4, "total": 24}, "p6": 4, "p6_est": 100, "total_est": 600, "summary": "直資學校，設五層資優架構與三文四語環境，外籍及普通話老師任班主任，師生比約 1:10。", "tags": ["直資", "資優", "語言環境", "低師生比"], "social": {}, "promo": {"open_day": false, "briefing": true, "campus_tv": false, "alumni": false, "note": "設入學簡介會，官網報名系統為主，FB 只見媒體轉載"}}, {"id": 25, "name": "保良局陸慶濤小學", "name_en": "", "net": "直資", "finance": "直資", "gender": "男女", "religion": "不適用", "area": "將軍澳（寶琳）", "address": "新界將軍澳寶林邨", "phone": "27010011", "email": "info@plklht.edu.hk", "website": "http://www.plklht.edu.hk", "supervisor": "", "principal": "", "sponsor": "保良局", "motto": "愛敬勤誠", "founded": "1988", "language": "中文（包括：普通話）及英文", "site_area": "約4500平方米", "through": "保良局羅氏基金中學", "classrooms": "24", "teachers": "63", "classes25": {"P1": 4, "P2": 4, "P3": 4, "P4": 4, "P5": 4, "P6": 4, "total": 24}, "classes26": {"P1": 4, "P2": 4, "P3": 4, "P4": 4, "P5": 4, "P6": 4, "total": 24}, "p6": 4, "p6_est": 100, "total_est": 600, "summary": "直資小學，重中小銜接、戶外考察與海外遊學，與保良局羅氏基金中學「一條龍」。", "tags": ["直資", "一條龍", "遊學"], "social": {}, "promo": {"open_day": false, "briefing": true, "campus_tv": true, "alumni": true, "note": "設小一簡介會及校園電視台，官網入學專頁資訊詳盡"}}, {"id": 26, "name": "香港華人基督教聯會真道書院", "name_en": "", "net": "直資", "finance": "直資", "gender": "男女", "religion": "不適用", "area": "將軍澳（市中心）", "address": "將軍澳嶺光街5號", "phone": "23372126", "email": "info@logosacademy.edu.hk", "website": "http://www.logosacademy.edu.hk", "supervisor": "", "principal": "", "sponsor": "香港華人基督教聯會", "motto": "求真行道、達善臻美", "founded": "2002", "language": "中文（包括：普通話）及英文", "site_area": "約7000平方米", "through": "香港華人基督教聯會真道書院", "classrooms": "76", "teachers": "159", "classes25": {"P1": 6, "P2": 6, "P3": 6, "P4": 6, "P5": 6, "P6": 0, "total": 30}, "classes26": {"P1": 7, "P2": 7, "P3": 7, "P4": 7, "P5": 7, "P6": 0, "total": 35}, "p6": 0, "p6_est": 0, "total_est": 750, "summary": "直資 11 年一貫學校，全年五學段、單元式課程，科學與人文以綜合跨科設計，無獨立小六級。", "tags": ["直資", "11 年一貫", "校本課程"], "social": {}, "promo": {"open_day": false, "briefing": false, "campus_tv": false, "alumni": false, "note": "以官網及入學講座為主，未見官方社交專頁"}}];
+</script>
+<script>
+const $ = (s, r = document) => r.querySelector(s);
+const fmt = n => n.toLocaleString('en-US');
+const CLR = ['#0f6f62', '#c2703c', '#2b5d8a', '#5b4a86'];
+
+/* ---------- KPI ---------- */
+(function () {
+  const n = DATA.length;
+  const aided = DATA.filter(d => d.finance !== '直資').length;
+  const dss = n - aided;
+  const p6 = DATA.reduce((a, d) => a + d.p6, 0);
+  const tot25 = DATA.reduce((a, d) => a + d.classes25.total, 0);
+  const tot26 = DATA.reduce((a, d) => a + d.classes26.total, 0);
+  const p1a = DATA.reduce((a, d) => a + d.classes25.P1, 0);
+  const p1b = DATA.reduce((a, d) => a + d.classes26.P1, 0);
+  const noSoc = DATA.filter(d => !Object.keys(d.social).length).length;
+  const k = [
+    ['', n, '間小學', `${aided} 間官津 · ${dss} 間直資`, 'accent'],
+    ['', p6, '班小六', `推算約 ${fmt(p6 * 25)} 名小六學生`, ''],
+    ['', tot25, '班（2025／26）', `2026／27：${tot26} 班（${tot26 - tot25} 班）`, ''],
+    ['', `${p1a}→${p1b}`, '小一班數', `全區小一減少 ${p1a - p1b} 班`, 'warn'],
+    ['', noSoc, '間無公開社交專頁', `FB ${DATA.filter(d => d.social.facebook).length} · IG ${DATA.filter(d => d.social.instagram).length} · YT ${DATA.filter(d => d.social.youtube).length}`, ''],
+  ];
+  $('#kpis').innerHTML = k.map(([_, v, l, d, cls]) =>
+    `<div class="kpi ${cls}"><div class="n">${v}</div><div class="l">${l}</div><div class="d">${d}</div></div>`).join('');
+})();
+
+/* ---------- bar helper ---------- */
+function bars(el, rows, max, unit = '') {
+  $(el).innerHTML = rows.map(r => {
+    const w = max ? Math.max(2, r.v / max * 100) : 0;
+    return `<div class="bar-row"><span class="nm" title="${r.n}">${r.n}</span>
+      <span class="bar-track"><span class="bar-fill ${r.alt ? 'alt' : ''}" style="width:${w}%;background:${r.c || ''}"></span></span>
+      <span class="v">${r.v}${unit}</span></div>`;
+  }).join('');
+}
+
+/* ---------- scale chart ---------- */
+(function () {
+  const rows = [...DATA].sort((a, b) => b.classes25.total - a.classes25.total);
+  const max = Math.max(...rows.map(d => Math.max(d.classes25.total, d.classes26.total)));
+  const el = $('#chartScale');
+  el.innerHTML = rows.map(d => {
+    const a = d.classes25.total, b = d.classes26.total;
+    const wa = a / max * 100, wb = b / max * 100;
+    const diff = b - a;
+    return `<div class="bar-row"><span class="nm" title="${d.name}">${d.name}</span>
+      <span style="position:relative;display:block">
+        <span class="bar-track" style="height:9px;margin-bottom:3px"><span class="bar-fill" style="width:${wa}%"></span></span>
+        <span class="bar-track" style="height:9px"><span class="bar-fill alt" style="width:${wb}%"></span></span>
+      </span>
+      <span class="v">${a}${diff ? `<span style="font-size:10px;color:${diff > 0 ? '#0f6f62' : '#b4530a'}"> ${diff > 0 ? '+' : ''}${diff}</span>` : ''}</span></div>`;
+  }).join('');
+})();
+
+/* ---------- size buckets ---------- */
+(function () {
+  const b = [
+    { n: '大型（30 班以上）', v: DATA.filter(d => d.classes25.total >= 30).length },
+    { n: '中型（15–29 班）', v: DATA.filter(d => d.classes25.total >= 15 && d.classes25.total < 30).length },
+    { n: '中小型（10–14 班）', v: DATA.filter(d => d.classes25.total >= 10 && d.classes25.total < 15).length },
+    { n: '小型（少於 10 班）', v: DATA.filter(d => d.classes25.total < 10).length },
+  ];
+  const max = Math.max(...b.map(x => x.v));
+  bars('#chartSize', b.map((x, i) => ({ n: x.n, v: x.v, c: CLR[i % 4] })), max, ' 間');
+})();
+
+/* ---------- heatmap ---------- */
+(function () {
+  const keys = ['P1', 'P2', 'P3', 'P4', 'P5', 'P6'];
+  const max = 6;
+  let h = '<thead><tr><th style="text-align:left">學校</th>' + keys.map(k => `<th>${k.replace('P', '小')}</th>`).join('') +
+    '<th>全校</th><th>小六<br>班數</th><th>小六人數<br>（推算）</th></tr></thead><tbody>';
+  [...DATA].sort((a, b) => b.classes25.total - a.classes25.total).forEach(d => {
+    h += `<tr><td class="nm">${d.name}${d.through && d.through !== '-' ? `<span class="pill" style="margin-left:6px">一條龍</span>` : ''}</td>`;
+    keys.forEach(k => {
+      const v = d.classes25[k] || 0;
+      const a = v ? 0.10 + (v / max) * 0.55 : 0;
+      h += `<td class="c" style="background:rgba(15,111,98,${a});color:${v / max > .55 ? '#fff' : '#16211d'}">${v || '—'}</td>`;
+    });
+    h += `<td class="c" style="background:#eef1ea;font-weight:700">${d.classes25.total}</td>
+          <td class="c" style="background:#eef1ea">${d.p6 || '—'}</td>
+          <td class="c" style="background:#f7ece0;font-weight:700">${d.p6 ? fmt(d.p6 * 25) : '—'}</td></tr>`;
+  });
+  $('#heat').innerHTML = h + '</tbody>';
+})();
+
+/* ---------- P6 chart ---------- */
+(function () {
+  const rows = [...DATA].filter(d => d.p6 > 0).sort((a, b) => b.p6 - a.p6);
+  bars('#chartP6', rows.map(d => ({ n: d.name, v: d.p6 })), Math.max(...rows.map(d => d.p6)), ' 班');
+})();
+
+/* ---------- P1 change ---------- */
+(function () {
+  const rows = DATA.map(d => ({ n: d.name, v: d.classes26.P1 - d.classes25.P1, p1: d.classes26.P1 }))
+    .sort((a, b) => a.v - b.v).slice(0, 10);
+  const max = Math.max(...rows.map(r => Math.abs(r.v)), 1);
+  $('#chartP1').innerHTML = rows.map(r => {
+    const w = Math.abs(r.v) / max * 100;
+    return `<div class="bar-row"><span class="nm">${r.n}</span>
+      <span class="bar-track" style="background:#f2f4ef"><span class="bar-fill" style="width:${w}%;background:${r.v < 0 ? '#b4530a' : r.v > 0 ? '#0f6f62' : '#c9d1c9'}"></span></span>
+      <span class="v">${r.v > 0 ? '+' : ''}${r.v || '—'}</span></div>`;
+  }).join('');
+})();
+
+/* ---------- roster ---------- */
+const RCOL = [
+  ['name', '學校'], ['area', '地區'], ['finance', '類別'], ['religion', '宗教'], ['founded', '創校'],
+  ['classes25', '全校班數'], ['p6', '小六班'], ['p6_est', '小六人數（推算）'], ['classes26', '26／27 班數'], ['social', '平台'],
+];
+let sortKey = 'classes25', sortDir = -1, shrinkOnly = false;
+
+function val(d, k) {
+  if (k === 'classes25') return d.classes25.total;
+  if (k === 'classes26') return d.classes26.total;
+  if (k === 'social') return Object.keys(d.social).length;
+  return d[k];
+}
+
+function renderRoster() {
+  const q = $('#q').value.trim().toLowerCase();
+  const ft = $('#fType').value, fr = $('#fRel').value, fa = $('#fArea').value;
+  let rows = DATA.filter(d =>
+    (!q || (d.name + d.name_en + d.sponsor + d.area + (d.tags || []).join('')).toLowerCase().includes(q)) &&
+    (!ft || d.finance === ft) && (!fr || d.religion === fr) && (!fa || d.area === fa) &&
+    (!shrinkOnly || d.classes26.total < d.classes25.total));
+  rows.sort((a, b) => {
+    let x = val(a, sortKey), y = val(b, sortKey);
+    if (typeof x === 'string') return x.localeCompare(y, 'zh-Hant') * sortDir;
+    return (x - y) * sortDir;
+  });
+  let h = '<thead><tr>' + RCOL.map(([k, l]) =>
+    `<th data-k="${k}">${l}${sortKey === k ? (sortDir > 0 ? ' ▲' : ' ▼') : ''}</th>`).join('') + '</tr></thead><tbody>';
+  h += rows.map(d => {
+    const cls = d.finance === '官立' ? 'gov' : d.finance === '直資' ? 'dss' : '';
+    const soc = Object.keys(d.social);
+    const socTxt = soc.length ? soc.map(s => ({ facebook: 'FB', instagram: 'IG', youtube: 'YT', xiaohongshu: '小紅書' }[s] || s)).join(' · ') : '<span style="color:#b4530a">未見</span>';
+    return `<tr>
+      <td class="sn"><a href="${d.website}" target="_blank" rel="noopener">${d.name}</a><small>${d.sponsor}</small></td>
+      <td style="white-space:nowrap;font-size:12px;color:var(--ink-2)">${d.area}</td>
+      <td><span class="pill ${cls}">${d.finance}</span></td>
+      <td><span class="pill ${d.religion !== '不適用' ? 'rel' : ''}">${d.religion}</span></td>
+      <td class="num">${d.founded || '—'}</td>
+      <td class="num">${d.classes25.total}</td>
+      <td class="num">${d.p6 || '—'}</td>
+      <td class="num">${d.p6 ? fmt(d.p6 * 25) : '—'}</td>
+      <td class="num" style="color:${d.classes26.total < d.classes25.total ? '#b4530a' : d.classes26.total > d.classes25.total ? '#0f6f62' : 'inherit'}">${d.classes26.total}</td>
+      <td style="font-size:11.5px;white-space:nowrap">${socTxt}</td>
+    </tr>`;
+  }).join('');
+  const t = $('#roster');
+  t.innerHTML = h + '</tbody>';
+  t.querySelectorAll('th').forEach(th => th.onclick = () => {
+    const k = th.dataset.k;
+    if (sortKey === k) sortDir *= -1; else { sortKey = k; sortDir = (k === 'name' || k === 'area' || k === 'finance' || k === 'religion') ? 1 : -1; }
+    renderRoster();
+  });
+  $('#rosterCount').textContent = `顯示 ${rows.length} / ${DATA.length} 間學校`;
+}
+
+(function () {
+  const rels = [...new Set(DATA.map(d => d.religion))].sort();
+  $('#fRel').innerHTML = '<option value="">全部宗教</option>' + rels.map(r => `<option>${r}</option>`).join('');
+  const areas = [...new Set(DATA.map(d => d.area))].sort();
+  $('#fArea').innerHTML = '<option value="">全部地區</option>' + areas.map(r => `<option>${r}</option>`).join('');
+  ['#q', '#fType', '#fRel', '#fArea'].forEach(s => $(s).addEventListener('input', renderRoster));
+  $('#fShrink').onclick = e => { shrinkOnly = !shrinkOnly; e.target.classList.toggle('on', shrinkOnly); renderRoster(); };
+  renderRoster();
+})();
+
+/* ---------- cards ---------- */
+(function () {
+  $('#cards').innerHTML = [...DATA].sort((a, b) => b.classes25.total - a.classes25.total).map(d => {
+    const soc = [
+      ['facebook', 'Facebook'], ['instagram', 'Instagram'], ['youtube', 'YouTube'], ['xiaohongshu', '小紅書']
+    ];
+    return `<div class="sc">
+      <div style="display:flex;justify-content:space-between;align-items:start;gap:8px">
+        <div><h3>${d.name}</h3><div class="en">${d.name_en}</div></div>
+        <span class="pill ${d.finance === '直資' ? 'dss' : d.finance === '官立' ? 'gov' : ''}">${d.finance}</span>
+      </div>
+      <div class="tags">${d.tags.map(t => `<span class="pill">${t}</span>`).join('')}</div>
+      <p class="sum">${d.summary}</p>
+      <div class="facts">
+        <div>全校班數<b>${d.classes25.total}</b></div>
+        <div>小六人數（推算）<b>${fmt(d.p6 * 25)}</b></div>
+        <div>創校<b>${d.founded || '—'}</b></div>
+      </div>
+      <div style="font-size:11.5px;color:var(--ink-3);display:grid;grid-template-columns:1fr 1fr;gap:3px 10px">
+        <span>${d.area}</span><span>${d.religion}</span>
+        <span>${d.motto ? '校訓：' + d.motto : ''}</span><span>${d.through && d.through !== '-' ? '龍：' + d.through : ''}</span>
+      </div>
+      <div class="links">
+        ${soc.map(([k, l]) => d.social[k]
+          ? `<a class="slink" href="${d.social[k]}" target="_blank" rel="noopener">${l} ↗</a>`
+          : `<span class="slink off">${l}</span>`).join('')}
+        <a class="slink" href="${d.website}" target="_blank" rel="noopener">官網 ↗</a>
+      </div>
+      <div class="note">${d.promo.note}</div>
+    </div>`;
+  }).join('');
+})();
+
+/* ---------- social chart + matrix ---------- */
+(function () {
+  const plats = [['facebook', 'Facebook'], ['instagram', 'Instagram'], ['youtube', 'YouTube'], ['xiaohongshu', '小紅書']];
+  const rows = plats.map(([k, l]) => ({ n: l, v: DATA.filter(d => d.social[k]).length }));
+  bars('#chartSocial', rows, DATA.length, ' 間');
+  let h = '<thead><tr><th style="text-align:left">學校</th>' + plats.map(p => `<th>${p[1]}</th>`).join('') +
+    '<th>平台數</th><th>官網</th></tr></thead><tbody>';
+  [...DATA].sort((a, b) => Object.keys(b.social).length - Object.keys(a.social).length || b.classes25.total - a.classes25.total).forEach(d => {
+    h += `<tr><td class="nm">${d.name}</td>` + plats.map(([k]) =>
+      d.social[k] ? `<td><a class="tick" href="${d.social[k]}" target="_blank" rel="noopener">●</a></td>` : '<td class="dash">—</td>').join('') +
+      `<td><b>${Object.keys(d.social).length}</b></td>
+       <td><a href="${d.website}" target="_blank" rel="noopener" style="font-size:12px">↗</a></td></tr>`;
+  });
+  $('#matrix').innerHTML = h + '</tbody>';
+})();
+
+/* ---------- promo chart ---------- */
+(function () {
+  const rows = [
+    { n: '設開放日', v: DATA.filter(d => d.promo.open_day).length },
+    { n: '設入學簡介會', v: DATA.filter(d => d.promo.briefing).length },
+    { n: '校園電視台', v: DATA.filter(d => d.promo.campus_tv).length },
+    { n: '有校友會', v: DATA.filter(d => d.promo.alumni).length },
+  ];
+  bars('#chartPromo', rows, DATA.length, ' 間');
+})();
+</script>
+</body>
+</html>

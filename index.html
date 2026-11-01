@@ -74,9 +74,9 @@ section > .wrap > h2{font-size:clamp(21px,2.6vw,28px);margin:0 0 6px;letter-spac
 @media(max-width:620px){.bar-row{grid-template-columns:104px 1fr 38px;font-size:12px}.bar-row .nm{font-size:11px}}
 
 /* heatmap */
-.heat{width:100%;min-width:600px;border-collapse:separate;border-spacing:0;font-size:12.5px}
+.heat{width:100%;min-width:700px;border-collapse:separate;border-spacing:0;font-size:12.5px}
 .heat th,.heat td{padding:7px 6px;text-align:center;border-bottom:1px solid var(--line)}
-.heat th{font-size:11.5px;color:var(--ink-3);font-weight:600;position:sticky;top:54px;background:var(--bg);z-index:2}
+.heat th{font-size:11.5px;color:var(--ink-3);font-weight:600;position:sticky;top:54px;background:var(--bg);z-index:2;white-space:nowrap}
 .heat td.nm{text-align:left;white-space:nowrap;font-size:12.5px;color:var(--ink)}
 .heat td.c{border-radius:6px;font-variant-numeric:tabular-nums;font-weight:700}
 .heat tr:hover td{background:#f8faf6}
@@ -151,7 +151,7 @@ footer b{color:var(--ink-2)}
   nav ul{gap:11px}
   nav ul a{font-size:11.5px}
   .heat th{position:static}
-  .heat{min-width:560px}
+  .heat{min-width:700px}
   section{scroll-margin-top:52px}
   h1{font-size:26px}
   .kpi{padding:13px 14px}

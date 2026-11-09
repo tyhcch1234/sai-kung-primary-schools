@@ -21,7 +21,7 @@ from urllib.parse import urlsplit
 
 ROOT = Path(__file__).resolve().parent
 CANONICAL = "https://tyhcch1234.github.io/sai-kung-primary-schools/"
-TITLE = "西貢區小學全景資料｜實際人數・升中去向・社交平台・P5/P6招生策略"
+TITLE = "西貢小學研究指南｜人數・活動・升中去向與來源"
 DESCRIPTION = "按西貢行政區研究範圍分類整理小學資料：逐校實際學生人數與學年、完整公開升中去向、活動、社媒身份核實、來源及缺口；附暫定中學P5/P6招生策略，不以班數推算人數，亦非學校排名。"
 UNKNOWN = "未公開／未核實"
 LABELS = {
@@ -55,7 +55,71 @@ LABELS = {
     "listed_count_sum": "公開列項人數小計（非全屆分母）",
     "reported_cohort_total": "原研究隊列值（未獨立核實，不採為全屆）",
     "cohort_total_verification": "全屆分母核實狀態",
+    "academic_year_normalized": "學年整理標記", "snapshot_date": "統計日期",
+    "grade_sum": "原研究逐級數字小計", "grade_sum_is_total": "逐級小計是否等同總數",
+    "record_type": "紀錄性質", "completeness_verified": "完整分佈是否已核實",
+    "platform_normalized": "平台分類", "verification_status_normalized": "身份核實分類",
+    "account_scope": "帳戶範圍", "evidence_strength": "身份證據口徑",
+    "content_access": "平台內容讀取限制", "percentage_scope": "百分比口徑",
+    "percentage_note": "百分比備註", "count_unit": "統計單位",
+    "verified_total_count": "有已核實小學總數的學校",
+    "verified_grade_count": "至少一級有已核實實數的學校",
+    "verified_p6_count": "有標準小六在籍實數的學校",
+    "verified_destinations_count": "有具名升學結果的學校",
+    "verified_destination_school_counts_count": "有接收中學逐校人數的學校",
+    "definitions": "統計定義", "school_count": "研究學校紀錄數",
+    "social_verified_counts": "身份已核實社媒覆蓋校數",
+    "full_destination_distributions_independently_verified_count": "完整去向分佈已獨立核實校數",
+    "category_counts": "類別紀錄數", "data_quality_flags": "資料限制提醒",
 }
+
+DISPLAY_VALUES = {
+    "official_exact": "官方實數", "not_verified": "未核實",
+    "official_table_with_unresolved_internal_conflict": "來源數字有矛盾",
+    "not_applicable": "不適用", "standard_primary_final_year": "本地標準小六",
+    "not_a_standard_primary_P6": "非標準小六學制",
+    "out_of_primary_scope": "數字包含其他學段，不能作小學人數",
+    "out_of_campus_primary_scope": "數字涵蓋其他校區，不能作本校小學人數",
+    "media_report_not_official_exact": "媒體報道，非官方實數",
+    "media_approximate_not_official_exact": "媒體約數，非官方實數",
+    "primary_school_or_documented_primary_stages": "小學或文件列明的小學階段",
+    "primary_school": "小學段", "primary_scope": "小學段",
+    "historical_primary_scope": "歷史小學段",
+    "school_total_from_media_snapshot": "媒體當時報道的學校總數",
+    "whole_institution_including_secondary": "全機構（包括中學）",
+    "four_campuses_all_stages": "四個校區、所有學段",
+    "primary_section_not_separately_published": "未單獨公布小學部人數",
+    "average_not_grade_actual": "平均班數，非本級實際班數",
+    "EDB_average_not_actual_Year6_classes": "教育局平均班數，非Year 6實際班數",
+    "as_reported_see_note": "依來源列報，口徑見備註",
+    "verified_identity": "身份已核實",
+    "verified_identity_via_school_link_content_unread": "校方連出，平台內容未讀",
+    "other_scope_not_counted": "其他範圍帳戶，不計作校方主帳戶",
+    "school_or_institution_main_account": "學校或機構主帳戶",
+    "other_organisation_or_subaccount": "其他組織或分部帳戶",
+    "reported_outcomes_partial_or_complete_see_coverage": "已報道升學結果，完整程度見公布範圍",
+    "policy_or_permission_not_observed_distribution": "政策／獲準對象，非已觀察去向分佈",
+    "unverified_full_cohort_denominator": "全屆分母未獨立核實",
+    "not_published_do_not_use_list_sum_as_cohort": "全屆人數未公布，不能用名單小計代替",
+    "partial_named_examples_english_medium_only": "部分具名英中例子，非全體結果",
+    "school_link_or_cross_platform_identity_as_original_verification": "依原研究的校方連結或跨平台身份證據",
+    "see_original_verification": "讀取限制詳見原始身份證據",
+    "reconstructed_from_submitted_summary_and_existing_local_annual_report_text": "按已提交摘要及既有年報文字重建",
+    "school_not_student": "學校數，非學生數",
+}
+
+
+def human(value):
+    return DISPLAY_VALUES.get(value, value) if isinstance(value, str) else value
+
+
+def short_year(parts):
+    """Compact label only; the complete original year remains in evidence."""
+    year = normalized_year(parts)
+    if year is None:
+        return None
+    match = re.match(r"^(\d{4}/\d{2})", year)
+    return match.group(1) if match else year
 
 
 def text(value):
@@ -125,6 +189,8 @@ def rich(value):
         return '<ul>' + ''.join(f'<li class="rich">{rich(val)}</li>' for val in value) + '</ul>'
     if safe_url(value):
         return '<p>' + external(value) + '</p>'
+    if isinstance(value, str) and value in DISPLAY_VALUES:
+        return '<p>' + esc(human(value)) + '<small>原標記：' + esc(value) + '</small></p>'
     return f'<p>{esc(value)}</p>'
 
 
@@ -352,39 +418,132 @@ class Renderer:
             return '<span class="source-refs missing">未附來源ID</span>'
         return '<span class="source-refs">' + " ".join(output) + '</span>'
 
-    def metric(self, key, parts, classes=False, extra_note=None):
+    def evidence(self, title, content):
+        return '<details class="evidence-panel"><summary>' + esc(title) + '</summary><div class="rich">' + content + '</div></details>'
+
+
+    def social_status(self, record):
+        r = obj(record)
+        status = r.get("verification_status_normalized")
+        scope = r.get("account_scope")
+        if status == "other_scope_not_counted" or scope == "other_organisation_or_subaccount":
+            return "other", "其他範圍帳戶"
+        if status == "verified_identity_via_school_link_content_unread":
+            return "verified", "校方連出・內容未讀"
+        if status == "verified_identity":
+            return "verified", "身份已核實"
+        if status == "not_verified":
+            return "unverified", "未核實"
+        # Do not infer official identity from a substring such as '官方' or '校友'.
+        return "unverified", "核實狀態未標準化"
+
+
+    def destination_limit(self, record):
+        d = obj(record)
+        if not observed_destination(d):
+            return "政策資料，並非某屆實際去向"
+        if "部分" in text(d.get("coverage")):
+            return "部分名單；不可視作全屆分佈"
+        if d.get("completeness_verified") is True:
+            return "完整性標記為已核實，仍以公布範圍為準"
+        return "名單完整性未核實；不可視作全屆分佈"
+
+
+    def destination_summary(self, record):
+        d = obj(record)
+        entries = items(d.get("schools"))
+        year = short_year(metric_parts(None, d)) or "學年未明"
+        if not observed_destination(d):
+            return year + " · 政策／獲準對象，非實際去向"
+        if not entries:
+            return year + " · 未提供可核實公開名單"
+        counts = any(number(obj(receiver).get("count")) is not None for receiver in entries)
+        return year + f' · 公開名單{len(entries)}所 · ' + ("有逐校人數" if counts else "未提供逐校人數") + " · " + self.destination_limit(d)
+
+
+    def summary_metric(self, school, which):
+        main = obj(school.get('enrolment'))
+        main_entries = [total_parts(main)] if which == 'total' else self.p6_entries(main)
+        if which == 'p6' and any(part.get('applicability') == 'not_a_standard_primary_P6' for part in main_entries):
+            return main_entries[0], False
+        def usable(part):
+            return number(part['value']) is not None and not unresolved_total(part) and part.get('verification') not in {'out_of_primary_scope', 'out_of_campus_primary_scope', 'not_verified', 'media_report_not_official_exact', 'media_approximate_not_official_exact'} and part.get('applicability') != 'not_a_standard_primary_P6'
+        valid_main = [part for part in main_entries if usable(part)]
+        if len(valid_main) == 1:
+            return valid_main[0], False
+        if len(valid_main) > 1:
+            return {'value': '多條獨立紀錄', 'academic_year': main.get('academic_year')}, False
+        historical = []
+        for record in items(school.get('enrolment_history')):
+            e = obj(record)
+            entries = [total_parts(e)] if which == 'total' else self.p6_entries(e)
+            valid = [part for part in entries if usable(part) and part.get('verification') == 'official_exact']
+            if len(valid) == 1:
+                part = valid[0]
+                year = normalized_year(part) or ''
+                match = re.match(r'^(\d{4})/(\d{2})$', year)
+                if match:
+                    historical.append((int(match.group(1)), int(match.group(2)), part))
+        if historical:
+            return max(historical, key=lambda item: item[:2])[2], True
+        return (main_entries[0] if main_entries else metric_parts(None, main)), False
+
+
+    def metric(self, key, parts, classes=False, extra_note=None, compact=False):
         value = parts["value"]
         if parts.get("applicability") == "not_a_standard_primary_P6":
             rendered_value = "不適用（非標準小六學制）"
         elif unresolved_total(parts):
             reported = parts.get("reported_total")
-            rendered_value = f'原表列{esc(value if reported is None else reported)}（總數有矛盾）'
+            rendered_value = '來源數字有矛盾' if compact else f'原表列{esc(value if reported is None else reported)}（總數有矛盾）'
+        elif parts.get("verification") in {"out_of_primary_scope", "out_of_campus_primary_scope"}:
+            rendered_value = "非小學段人數"
+        elif value is None:
+            rendered_value = "未核實" if compact else "人數未公開／未核實"
         else:
             rendered_value = esc(value) if not isinstance(value, (dict, list)) else rich(value)
-        output = f'<span class="value">{rendered_value}</span><small>學年：{esc(parts["academic_year"])}</small>'
+        output = '<div class="compact-metric"><span class="value">' + rendered_value + '</span>'
+        year = short_year(parts)
+        if not compact or year:
+            output += '<small>學年：' + esc(year) + '</small>'
         if classes:
-            output += self.class_metric(key, parts, small=True)
-        output += self.refs(key, parts.get("source_ids"), "人數／班數")
-        for field, label in (("verification", "核實標記"), ("applicability", "小六適用性"), ("total_scope", "總數範圍"), ("reported_total", "原報告總數"), ("reported_students", "原報告人數")):
-            if parts.get(field) is not None:
-                output += f'<small class="metric-qualification">{label}：{esc(parts[field])}</small>'
-        note = parts.get("note")
-        if note is not None and note != "":
-            output += '<div class="metric-note rich small">' + rich(note) + '</div>'
+            output += self.class_metric(key, parts, small=True, compact=compact)
+        if compact:
+            output += self.refs(key, parts.get("source_ids"), "人數／班數")
+            if extra_note:
+                output += '<small>' + esc(extra_note) + '</small>'
+            return output + '</div>'
+        if parts.get("verification") is not None:
+            output += '<small class="metric-qualification">' + esc(human(parts["verification"])) + '</small>'
         if extra_note:
-            output += f'<small>{esc(extra_note)}</small>'
-        return output
+            output += '<small>' + esc(extra_note) + '</small>'
+        evidence = '<p>原列學年：' + esc(parts.get("academic_year")) + '</p>'
+        evidence += self.refs(key, parts.get("source_ids"), "人數／班數")
+        qualifications = {field: parts[field] for field in ("verification", "applicability", "total_scope", "reported_total", "reported_students", "academic_year_normalized", "reported_classes", "classes_scope", "classes_academic_year", "classes_source_ids") if parts.get(field) is not None}
+        if qualifications:
+            evidence += rich(qualifications)
+        if parts.get("note") is not None:
+            evidence += '<b>資料備註：</b>' + rich(parts["note"])
+        return output + self.evidence("來源、口徑與完整備註", evidence) + '</div>'
 
-    def class_metric(self, key, parts, small=False):
+
+    def class_metric(self, key, parts, small=False, compact=False):
         year = parts.get("classes_academic_year")
-        if parts.get("classes_scope") == "average_not_grade_actual":
+        average = parts.get("classes_scope") in {"average_not_grade_actual", "EDB_average_not_actual_Year6_classes"}
+        if average:
             caption = f'來源列平均{esc(parts.get("reported_classes"))}班，非本級實際班數；' + ("班數年份未明" if year is None else f'班數學年：{esc(year)}')
         else:
             caption = f'班數：{esc(parts.get("classes"))}（獨立資料，不推算人數）；班數學年：{esc(year)}'
+        if compact:
+            caption = f'平均{esc(parts.get("reported_classes"))}班（非實際）' if average else f'{esc(parts.get("classes"))}班'
         output = f'<div class="class-count{" small" if small else ""}">{caption}'
-        if parts.get("classes_scope") is not None:
-            output += f'<small>班數口徑：{esc(parts["classes_scope"])}</small>'
-        return output + self.refs(key, parts.get("classes_source_ids", parts.get("source_ids")), "年級班數") + '</div>'
+        if not compact:
+            content = self.refs(key, parts.get("classes_source_ids", parts.get("source_ids")), "年級班數")
+            if parts.get("classes_scope") is not None:
+                content += rich({"classes_scope": parts["classes_scope"]})
+            output += self.evidence("班數來源與口徑", content)
+        return output + '</div>'
+
 
     def grade_entries(self, enrolment, code):
         return [entry for entry in items(enrolment.get("grades")) if isinstance(entry, dict) and grade_code(entry.get("grade")) == code]
@@ -404,17 +563,18 @@ class Renderer:
         school = obj(self.schools[key])
         entry = self.index[key]
         e = obj(school.get("enrolment"))
-        output = f'<tr data-school-key="{key}"><th scope="row"><a href="#{entry["slug"]}">{esc(school.get("name"))}</a><small>{esc(school.get("english_name"))}</small></th>'
-        output += f'<td>{esc(school.get("category"))}<small>狀態：{esc(school.get("status"))}</small></td><td>{esc(e.get("academic_year"))}<small>各項如有另列學年，以該項為準</small></td>'
-        output += '<td class="numeric">' + self.metric(key, total_parts(e)) + '</td>'
+        output = f'<tr data-school-key="{key}"><th scope="row"><a href="#{entry["slug"]}">{esc(school.get("name"))}</a><small>{esc(school.get("category"))}</small></th>'
+        output += '<td>' + esc(short_year(metric_parts(None, e))) + '</td>'
+        output += '<td class="numeric">' + self.metric(key, total_parts(e), compact=True) + '</td>'
         for code in ("P1", "P2", "P3", "P4", "P5", "P6"):
             entries = self.p6_entries(e) if code == "P6" else [metric_parts(grade, e) for grade in self.grade_entries(e, code)]
             if not entries:
                 entries = [metric_parts(None, {"academic_year": e.get("academic_year")})]
             output += f'<td class="numeric{" p6-cell" if code == "P6" else ""}">'
-            output += '<hr>'.join(self.metric(key, parts, classes=True, extra_note="不同紀錄分開呈現，不相加" if len(entries) > 1 else None) for parts in entries)
+            output += '<hr>'.join(self.metric(key, parts, classes=True, extra_note="不同紀錄分開呈現，不相加" if len(entries) > 1 else None, compact=True) for parts in entries)
             output += '</td>'
         return output + '</tr>'
+
 
     def sources(self, key):
         output = '<ol class="source-list">'
@@ -457,23 +617,27 @@ class Renderer:
 
     def social_entry(self, key, record, display_platform=False):
         if not isinstance(record, dict):
-            return '<div class="social-entry rich">不規則社媒紀錄：' + rich(record) + '</div>'
+            return '<div class="social-entry">不規則社媒紀錄' + self.evidence("查看原始紀錄", rich(record)) + '</div>'
+        kind, label = self.social_status(record)
         output = '<div class="social-entry">'
         if display_platform:
             output += f'<b>{esc(record.get("platform"))}</b><br>'
-        output += external(record.get("url"), record.get("account") if record.get("account") is not None else record.get("url"))
-        output += '<small>狀態：' + esc(record.get("status")) + '</small>'
-        output += '<div class="identity rich">身份核實證據：' + rich(record.get("verification")) + '</div>'
-        output += self.refs(key, record.get("source_ids"), "社媒身份")
+        if record.get("url") is not None or record.get("account") is not None:
+            output += external(record.get("url"), record.get("account") if record.get("account") is not None else record.get("url"))
+        output += f'<span class="social-chip {kind}">{esc(label)}</span>'
+        content = '<p>原始狀態：' + esc(record.get("status")) + '</p><b>身份核實證據：</b>' + rich(record.get("verification"))
+        content += self.refs(key, record.get("source_ids"), "社媒身份")
         extras = {k: v for k, v in record.items() if k not in {"platform", "account", "url", "status", "verification", "source_ids"}}
         if extras:
-            output += rich(extras)
-        return output + '</div>'
+            content += rich(extras)
+        return output + self.evidence("身份、原始狀態與資料限制", content) + '</div>'
+
 
     def social_cell(self, key, records, other=False):
         if not records:
-            return '<span class="missing">未提供已核實帳戶／未找到紀錄</span><div class="identity">身份證據：未提供；不代表學校沒有帳戶。</div>'
+            return '<span class="social-chip unverified">未提供已核實帳戶／未找到紀錄</span>' + self.evidence("查看說明", '<p>身份證據：未提供；不代表學校沒有帳戶。</p>')
         return ''.join(self.social_entry(key, record, other) for record in records)
+
 
     def social_row(self, key):
         school = obj(self.schools[key])
@@ -487,11 +651,12 @@ class Renderer:
         school = obj(self.schools[key])
         output = ''
         if overview:
-            output += f'<article class="destination-block" data-school-key="{key}"><h3><a href="#{self.index[key]["slug"]}">{esc(school.get("name"))}</a></h3>'
+            output += f'<article class="destination-block" data-school-key="{key}"><details class="fold-panel destination-fold"><summary><span class="school-name">{esc(school.get("name"))}</span><span class="summary-meta">{esc(self.destination_summary(school.get("destinations")))}</span></summary><p><a href="#{self.index[key]["slug"]}">閱讀此校完整資料</a></p>'
         records = [("主要去向紀錄", school.get("destinations"))] + [("歷年獨立去向紀錄", record) for record in items(school.get("destinations_history"))]
         for label, record in records:
-            output += '<section class="destination-cohort"><h4>' + label + '（各屆分開，不合計）</h4>' + self.destination_record(key, record) + '</section>'
-        return output + ('</article>' if overview else '')
+            output += '<details class="destination-cohort fold-panel"><summary>' + esc(label + " · " + self.destination_summary(record)) + '</summary><p class="mini-note">各屆分開，不合計；派位去向不是志願次序。</p>' + self.destination_record(key, record) + '</details>'
+        return output + ('</details></article>' if overview else '')
+
 
     def destination_record(self, key, destination_value):
         d = obj(destination_value)
@@ -500,65 +665,86 @@ class Renderer:
         output = '' if observed else '<p class="note-box warning">政策／獲準升讀對象，非已觀察實際去向；不納入實際接收中學搜尋或數字覆蓋。</p>'
         output += '<div class="destination-meta">'
         output += f'<span>學年：<b>{esc(d.get("academic_year"))}</b></span><span>該屆總人數：<b>{esc(d.get("cohort_total"))}</b></span></div>'
-        output += '<div class="note-box rich"><b>公布覆蓋範圍：</b>' + rich(d.get("coverage")) + '<b>資料備註：</b>' + rich(d.get("note")) + self.refs(key, d.get("source_ids"), "去向整體") + '</div>'
-        output += '<div class="tablewrap" tabindex="0" role="region" aria-label="接收中學完整公開紀錄"><table><caption>全部已提供接收中學紀錄；不是第一志願或完整分佈的推定</caption><thead><tr><th scope="col">接收中學</th><th scope="col">學年</th><th scope="col">人數</th><th scope="col">公布百分比</th><th scope="col">備註與來源</th></tr></thead><tbody>'
-        for receiver in entries:
-            r = obj(receiver)
-            name = r.get("name") if r else receiver
-            row_attribute = f' data-destination="{esc(name)}"' + ('' if observed else ' data-observed="false"')
-            output += f'<tr{row_attribute}><th scope="row">{esc(name)}</th><td>{esc(r.get("academic_year", d.get("academic_year")))}</td><td>{esc(r.get("count"))}</td><td>{esc(r.get("percentage"))}</td><td class="rich">{rich(r.get("note"))}{self.refs(key, r.get("source_ids"), "接收中學")}'
-            extras = {k: v for k, v in r.items() if k not in {"name", "academic_year", "count", "percentage", "note", "source_ids"}}
-            if extras:
-                output += rich(extras)
-            output += '</td></tr>'
-        if not entries:
-            output += f'<tr><td colspan="5" class="missing">{UNKNOWN}；未提供接收中學紀錄。</td></tr>'
-        output += '</tbody></table></div>'
+        if observed and entries:
+            output += '<p class="mini-note warning">' + esc(self.destination_limit(d)) + '。派位去向不等於家長偏好。</p>'
+        content = '<b>公布覆蓋範圍：</b>' + rich(d.get("coverage")) + '<b>資料備註：</b>' + rich(d.get("note")) + self.refs(key, d.get("source_ids"), "去向整體")
         extras = {k: v for k, v in d.items() if k not in {"academic_year", "cohort_total", "coverage", "note", "schools", "source_ids"}}
         if extras:
-            output += rich(extras)
+            content += rich(extras)
+        output += self.evidence("公布範圍、來源與完整備註", content)
+        if entries:
+            output += '<div class="tablewrap" tabindex="0" role="region" aria-label="接收中學完整公開紀錄"><table><caption>全部已提供接收中學紀錄；不是第一志願或完整分佈的推定</caption><thead><tr><th scope="col">接收中學</th><th scope="col">人數</th><th scope="col">公布百分比</th><th scope="col">來源／詳情</th></tr></thead><tbody>'
+            for receiver in entries:
+                r = obj(receiver)
+                name = r.get("name") if r else receiver
+                row_attribute = f' data-destination="{esc(name)}"' + ('' if observed else ' data-observed="false"')
+                # Null percentage stays unknown; raw researcher calculations remain only in raw JSON.
+                output += f'<tr{row_attribute}><th scope="row">{esc(name)}</th><td>{esc(r.get("count"))}</td><td>{esc(r.get("percentage"))}</td><td>'
+                evidence = '<p>學年：' + esc(r.get("academic_year", d.get("academic_year"))) + '</p>' + rich(r.get("note")) + self.refs(key, r.get("source_ids"), "接收中學")
+                receiver_extras = {k: v for k, v in r.items() if k not in {"name", "academic_year", "count", "percentage", "note", "source_ids"}}
+                if receiver_extras:
+                    evidence += rich(receiver_extras)
+                output += self.evidence("來源與備註", evidence) + '</td></tr>'
+            output += '</tbody></table></div>'
+        else:
+            output += '<p class="missing">未公開／未核實；未提供接收中學紀錄。</p>'
         if destination_value is not None and not isinstance(destination_value, dict):
             output += '<div class="rich">不規則原始去向紀錄：' + rich(destination_value) + '</div>'
         return output
+
 
     def enrolment_detail(self, key, history=False, override=None):
         school = obj(self.schools[key])
         value = override if history else school.get("enrolment")
         e = obj(value)
-        heading = '歷年獨立紀錄：' + text(e.get('academic_year')) if history else '實際學生人數與班數'
-        output = '<h3>' + esc(heading) + '</h3><div class="note-box">人數只使用研究輸入的實際紀錄。P1–P6 不涵蓋所有學制；其他年級按原標籤列出，不強行換算。班數不得乘班額估算人數。</div>'
-        output += '<div class="grid2"><div class="card"><b>全校人數</b>' + self.metric(key, total_parts(e)) + '</div><div class="card p6-cell"><b>小六人數</b>'
+        output = ''
+        if history:
+            output += '<details class="history-record"><summary>歷年獨立紀錄：' + esc(e.get('academic_year')) + '</summary>'
+        else:
+            output += '<p class="mini-note">主紀錄與歷史資料分開；班數不推算人數。非標準學制按原級名列出。</p>'
+        output += '<div class="grid2"><div class="card"><b>小學段總數</b>' + self.metric(key, total_parts(e)) + '</div><div class="card p6-cell"><b>小六人數</b>'
         p6 = self.p6_entries(e) or [metric_parts(None, {"academic_year": e.get("academic_year")})]
         output += '<hr>'.join(self.metric(key, parts, True, "獨立紀錄，不合計" if len(p6) > 1 else None) for parts in p6) + '</div></div>'
-        output += '<div class="tablewrap" tabindex="0" role="region" aria-label="所有原始年級的人數與班數"><table><caption>全部原始年級紀錄（不截斷、不轉換學制）</caption><thead><tr><th scope="col">原始年級</th><th scope="col">學生人數／學年／來源</th><th scope="col">班數／學年／來源</th><th scope="col">學制與備註</th></tr></thead><tbody>'
+        output += '<div class="tablewrap" tabindex="0" role="region" aria-label="所有原始年級的人數與班數"><table class="grade-table"><caption>逐級資料（保留原學制，不跨年合計）</caption><thead><tr><th scope="col">原始年級</th><th scope="col">學生數</th><th scope="col">班數</th><th scope="col">學年</th><th scope="col">來源／詳情</th></tr></thead><tbody>'
         grades = items(e.get("grades"))
         for grade in grades:
             g = obj(grade)
-            year = g.get("academic_year", e.get("academic_year"))
             parts = metric_parts(g, e)
-            parts["note"] = None
-            output += f'<tr><th scope="row">{esc(g.get("grade") if g else grade)}</th><td>' + self.metric(key, parts) + '</td><td>'
-            output += self.class_metric(key, parts) + '</td><td class="rich">' + rich(g.get("note"))
-            extras = {k: v for k, v in g.items() if k not in {"grade", "students", "classes", "academic_year", "source_ids", "note"}}
-            if extras:
-                output += rich(extras)
-            output += '</td></tr>'
-        if not grades:
-            output += '<tr><td colspan="4" class="missing">未提供各年級紀錄</td></tr>'
-        output += '</tbody></table></div><div class="rich">全校人數備註：' + rich(e.get("note")) + self.refs(key, e.get("source_ids"), "人數整體") + '</div>'
-        extras = {k: v for k, v in e.items() if k not in {"academic_year", "total", "grades", "p6", "source_ids", "note"}}
-        if extras:
-            output += rich(extras)
-        if value is not None and not isinstance(value, dict):
-            output += '<div class="rich">不規則人數紀錄：' + rich(value) + '</div>'
-        if not history:
-            output += '<h4>歷年紀錄（逐年分開，不跨年相加）</h4>'
-            records = items(school.get("enrolment_history"))
-            if records:
-                output += ''.join(self.enrolment_detail(key, history=True, override=record) for record in records)
+            count = parts['value']
+            if parts.get('applicability') == 'not_a_standard_primary_P6':
+                caption = '不適用（非標準小六學制）'
             else:
-                output += '<p class="missing">未提供歷年人數紀錄</p>'
-        return output
+                caption = '未核實' if count is None else text(count)
+            average = parts.get('classes_scope') in {'average_not_grade_actual', 'EDB_average_not_actual_Year6_classes'}
+            classes = '平均' + text(parts.get('reported_classes')) + '（非實際）' if average else ('未核實' if parts.get('classes') is None else text(parts['classes']))
+            output += f'<tr><th scope="row">{esc(g.get("grade") if g else grade)}</th><td class="short-value">{esc(caption)}</td><td class="short-value">{esc(classes)}</td><td>{esc(short_year(parts))}</td><td>'
+            evidence = '<p>學生人數原列學年：' + esc(parts.get('academic_year')) + '</p>' + self.refs(key, parts.get('source_ids'), '年級人數')
+            evidence += self.class_metric(key, parts) + '<b>完整備註：</b>' + rich(g.get('note'))
+            extras = {k: v for k, v in g.items() if k not in {'grade', 'students', 'classes', 'academic_year', 'source_ids', 'note'}}
+            if extras:
+                evidence += rich(extras)
+            output += self.evidence('來源、班數學年與完整備註', evidence) + '</td></tr>'
+        if not grades:
+            output += '<tr><td colspan="5" class="missing">未提供各年級紀錄</td></tr>'
+        output += '</tbody></table></div>'
+        evidence = '<b>小學段總數備註：</b>' + rich(e.get('note')) + self.refs(key, e.get('source_ids'), '人數整體')
+        extras = {k: v for k, v in e.items() if k not in {'academic_year', 'total', 'grades', 'p6', 'source_ids', 'note'}}
+        if extras:
+            evidence += rich(extras)
+        # Metric objects may carry additional evidence not represented by metric_parts.
+        for field in ('total', 'p6'):
+            extra_metric = {k: v for k, v in obj(e.get(field)).items() if k not in {'students', 'count', 'total', 'classes', 'academic_year', 'source_ids', 'note', 'verification', 'applicability', 'reported_students', 'reported_classes', 'classes_scope', 'classes_academic_year', 'classes_source_ids', 'academic_year_normalized'}}
+            if extra_metric:
+                evidence += '<b>' + esc(LABELS[field]) + '附加資料：</b>' + rich(extra_metric)
+        if value is not None and not isinstance(value, dict):
+            evidence += '<b>不規則人數紀錄：</b>' + rich(value)
+        output += self.evidence('整體來源與資料口徑', evidence)
+        if not history:
+            records = items(school.get('enrolment_history'))
+            output += '<h4>歷年紀錄（逐年分開，不跨年相加）</h4>'
+            output += ''.join(self.enrolment_detail(key, history=True, override=record) for record in records) if records else '<p class="missing">未提供歷年人數紀錄</p>'
+        return output + ('</details>' if history else '')
+
 
     def source_field(self, key, value, fields, context):
         """Render a sourced object; never hide malformed or additional fields."""
@@ -574,52 +760,83 @@ class Renderer:
     def school_card(self, key):
         s = obj(self.schools[key])
         entry = self.index[key]
-        output = f'<details class="school-card" id="{entry["slug"]}" data-school-key="{key}"><summary>{esc(s.get("name"))}<span class="summary-meta">{esc(s.get("english_name"))} · {esc(s.get("category"))} · 核實：{esc(s.get("checked_date"))}</span></summary><div class="school-body">'
-        output += f'<a class="permalink" href="#{entry["slug"]}">此校深連結</a><div class="section-links">' + external(s.get("website"), "學校官網") + external(s.get("profile_url"), "學校概覽") + '</div>'
-        output += '<dl class="kv">' + ''.join(f'<dt>{esc(LABELS[field])}</dt><dd class="rich">{rich(s.get(field))}</dd>' for field in ("address", "school_net", "status", "scope_note", "checked_date")) + '</dl>'
-        output += self.enrolment_detail(key)
-        output += '<h3>課外與旗艦活動</h3>'
-        activities = items(s.get("activities"))
+        output = f'<details class="school-card" id="{entry["slug"]}" data-school-key="{key}"><summary><span class="school-name">{esc(s.get("name"))}</span><span class="summary-meta">{esc(s.get("category"))}</span><span class="summary-stats">'
+        for which, label in [('total', '小學段總數'), ('p6', '小六人數')]:
+            part, historical = self.summary_metric(s, which)
+            if part.get('applicability') == 'not_a_standard_primary_P6':
+                caption = '不適用（非標準小六學制）'
+            elif unresolved_total(part):
+                caption = '來源數字有矛盾'
+            elif part.get('verification') in {'out_of_primary_scope', 'out_of_campus_primary_scope'}:
+                caption = '非小學段數字'
+            elif part['value'] is None or part.get('verification') in {'not_verified', 'media_report_not_official_exact', 'media_approximate_not_official_exact'}:
+                caption = '人數未公開／未核實'
+            else:
+                caption = text(part['value'])
+            output += '<span class="stat-item"><span class="stat-label">' + label + '</span><span class="stat-number">' + (esc(caption) if number(caption) is not None else '<span class="short-value">' + esc(caption) + '</span>') + '</span><span class="stat-year">' + ('歷史資料 · ' if historical else '') + esc(short_year(part) or '學年未明') + '</span></span>'
+        output += '</span><span class="summary-tags">'
+        tags = []
+        for activity in items(s.get('activities')):
+            for tag in items(obj(activity).get('tags')):
+                if isinstance(tag, str) and tag not in tags:
+                    tags.append(tag)
+        output += ''.join('<span class="pill">' + esc(tag) + '</span>' for tag in tags[:3])
+        output += '</span><span class="summary-tags">'
+        for platform, records in list(self.social_groups(s).items())[:3]:
+            statuses = [self.social_status(record) for record in records]
+            if not statuses:
+                kind, label = 'unverified', '未找到／未核實'
+            elif any(status[0] == 'verified' for status in statuses):
+                kind, label = next(status for status in statuses if status[0] == 'verified')
+            elif any(status[0] == 'other' for status in statuses):
+                kind, label = 'other', '其他範圍帳戶'
+            else:
+                kind, label = 'unverified', '未核實'
+            name = {'Facebook': 'FB', 'Instagram': 'IG'}.get(platform, platform)
+            output += f'<span class="social-chip {kind}">{esc(name)} · {esc(label)}</span>'
+        output += '</span><span class="summary-expand">展開資料與來源</span></summary><div class="school-body">'
+        output += f'<a class="permalink" href="#{entry["slug"]}">此校深連結</a><div class="section-links">' + external(s.get('website'), '學校官網') + external(s.get('profile_url'), '學校概覽') + '</div>'
+        output += '<p class="mini-note">' + esc(s.get('english_name')) + ' · 核實：' + esc(s.get('checked_date')) + '</p>'
+        output += '<details class="profile-section" open><summary>學生人數</summary>' + self.enrolment_detail(key) + '</details>'
+        output += '<details class="profile-section"><summary>重點活動</summary>'
+        activities = items(s.get('activities'))
         for activity in activities:
             a = obj(activity)
             output += '<div class="activity">'
             if a:
-                output += f'<h4>{esc(a.get("title"))}</h4><small>年份／學年：{esc(a.get("year"))}</small><div class="rich">' + rich(a.get("description")) + '</div><div class="tags">'
-                output += ''.join(f'<span class="pill">{esc(tag)}</span>' for tag in items(a.get("tags"))) + '</div>' + self.refs(key, a.get("source_ids"), "課外活動")
-                extras = {k: v for k, v in a.items() if k not in {"title", "year", "description", "tags", "source_ids"}}
+                output += f'<h4>{esc(a.get("title"))}</h4><small>年份／學年：{esc(a.get("year"))}</small><div class="rich">' + rich(a.get('description')) + '</div><div class="tags">'
+                output += ''.join(f'<span class="pill">{esc(tag)}</span>' for tag in items(a.get('tags'))) + '</div>'
+                evidence = self.refs(key, a.get('source_ids'), '課外活動')
+                extras = {k: v for k, v in a.items() if k not in {'title', 'year', 'description', 'tags', 'source_ids'}}
                 if extras:
-                    output += rich(extras)
+                    evidence += rich(extras)
+                output += self.evidence('活動來源與完整備註', evidence)
             else:
                 output += rich(activity)
             output += '</div>'
         if not activities:
             output += '<p class="missing">未提供已核實活動紀錄</p>'
-        output += '<h3>升中取向：觀察、推論與限制分開</h3>' + self.source_field(key, s.get("preferences"), ("observed", "inference", "caveat"), "升中取向")
+        output += '</details><details class="profile-section"><summary>升中去向與制度</summary><h3>升中取向：觀察、推論與限制分開</h3>' + self.source_field(key, s.get('preferences'), ('observed', 'inference', 'caveat'), '升中取向')
         output += '<h3>一條龍／聯繫／其他學校關係</h3>'
-        links = items(s.get("school_links"))
-        output += ''.join('<div class="activity">' + self.source_field(key, link, ("school", "relationship", "note"), "學校關係") + '</div>' for link in links) if links else '<p class="missing">未提供已核實關係紀錄；不代表沒有關係。</p>'
-        output += '<h3>公開升中去向</h3>' + self.destination(key)
-        output += '<h3>社交平台與身份證據</h3>'
-        output += '<p class="sub">保留研究原始狀態；官方已核實、校友會、第三方與待核實帳戶不可互相替代。</p>'
+        links = items(s.get('school_links'))
+        output += ''.join('<div class="activity">' + self.source_field(key, link, ('school', 'relationship', 'note'), '學校關係') + '</div>' for link in links) if links else '<p class="missing">未提供已核實關係紀錄；不代表沒有關係。</p>'
+        output += '<h3>公開升中去向</h3>' + self.destination(key) + '</details><details class="profile-section"><summary>社交平台</summary><p class="mini-note">官方、校友會、第三方與待核實帳戶不可互相替代；未找到不代表不存在。</p>'
         for platform, records in self.social_groups(s).items():
-            output += f'<h4>{esc(platform)}</h4>' + self.social_cell(key, records, platform == "其他平台")
-        output += '<h3>公開聯絡資料</h3>' + self.source_field(key, s.get("contact"), ("phone", "email"), "聯絡資料")
-        output += '<h3>每校宣傳切入建議（暫定中學P5/P6招生情境）</h3><p class="sub">研究建議不代表學校願意合作；接觸優先次序非學校質素排名，未對外聯絡。</p>'
-        output += self.source_field(key, s.get("marketing"), ("segment", "priority_rationale", "entry_offer", "contact_role", "message", "channels", "caveats"), "每校宣傳建議")
-        output += '<h3>完整來源</h3><p>此校來源列於<a href="#sources-' + str(key) + '">全站來源區</a>（所有來源，不截斷）。</p>'
-        # Source anchors are owned by the central list; inline copy has no duplicate ids.
-        output += '<ul class="source-list">'
+            output += f'<h4>{esc(platform)}</h4>' + self.social_cell(key, records, platform == '其他平台')
+        output += '</details><details class="profile-section"><summary>宣傳切入與聯絡</summary><h3>公開聯絡資料</h3>' + self.source_field(key, s.get('contact'), ('phone', 'email'), '聯絡資料')
+        output += '<h3>每校宣傳切入建議（暫定中學P5/P6招生情境）</h3><p class="mini-note">不是合作或偏好證據，非學校排名；未對外聯絡。</p>' + self.source_field(key, s.get('marketing'), ('segment', 'priority_rationale', 'entry_offer', 'contact_role', 'message', 'channels', 'caveats'), '每校宣傳建議')
+        output += '</details><details class="profile-section"><summary>來源與資料限制</summary><dl class="kv">' + ''.join(f'<dt>{esc(LABELS[field])}</dt><dd class="rich">{rich(s.get(field))}</dd>' for field in ('address', 'school_net', 'status', 'scope_note', 'checked_date')) + '</dl>'
+        output += '<p>此校全部來源列於<a href="#sources-' + str(key) + '">全站來源區</a>（不截斷）。</p><details class="fold-panel"><summary>逐項來源連結</summary><ul class="source-list">'
         for source_key, source in enumerate(self.source_cache[key]):
-            so = obj(source["record"])
-            output += f'<li><a href="#source-{key}-{source_key}">來源 {esc(source["id"])}</a> — ' + (external(so.get("url"), so.get("title")) if so else rich(source["record"])) + f'<small>學年：{esc(so.get("academic_year"))} · 查閱：{esc(so.get("accessed_date"))}</small></li>'
-        output += '</ul>' if self.source_cache[key] else '<li class="missing">未提供來源紀錄</li></ul>'
-        output += '<h3>研究缺口</h3><div class="rich">' + rich(s.get("gaps")) + '</div>'
-        known = {"id", "name", "english_name", "category", "website", "profile_url", "address", "school_net", "status", "scope_note", "checked_date", "enrolment", "enrolment_history", "activities", "preferences", "school_links", "destinations", "destinations_history", "social", "contact", "marketing", "sources", "gaps", "raw_data", "integration"}
-        extras = {field: value for field, value in s.items() if field not in known and not field.endswith("_path")}
+            output += f'<li><a href="#source-{key}-{source_key}">來源 {esc(source["id"])}</a> — ' + esc(obj(source['record']).get('title') if obj(source['record']) else source['record']) + '</li>'
+        output += '</ul></details><h3>研究缺口</h3><div class="rich">' + rich(s.get('gaps')) + '</div>'
+        known = {'id', 'name', 'english_name', 'category', 'website', 'profile_url', 'address', 'school_net', 'status', 'scope_note', 'checked_date', 'enrolment', 'enrolment_history', 'activities', 'preferences', 'school_links', 'destinations', 'destinations_history', 'social', 'contact', 'marketing', 'sources', 'gaps', 'raw_data', 'integration'}
+        extras = {field: value for field, value in s.items() if field not in known and not field.endswith('_path')}
         if extras:
             output += '<h3>附加研究資料</h3><div class="rich">' + rich(extras) + '</div>'
         output += f'<details class="raw-record js-only" data-school-key="{key}"><summary>檢視此校完整原始JSON（包含額外／不規則欄位）</summary><pre></pre></details>'
-        return output + '</div></details>'
+        return output + '</details></div></details>'
+
 
     def school_links(self, value):
         output = []
@@ -637,34 +854,55 @@ class Renderer:
 
     def strategy_html(self):
         s = self.strategy
-        output = '<div class="note-box warning">暫定情境：中學面向P5/P6家庭及小學的招生／升中支援。以下是策略提案，不是學校排名，也不是對家長第一志願的判定；情境應由委託方確認。未對外聯絡。</div>'
-        output += '<h3>情境與主要結論</h3><div class="rich">' + rich(s.get("context")) + rich(s.get("main_conclusion")) + '</div><h3>分群與切入</h3><div class="segments">'
-        for segment in items(s.get("segments")):
+        output = '<p class="overview-note">以校方審批、家長自選的小型體驗作切入；先確認課程與支援是否適合，再談招生。</p><p class="mini-note">暫定中學P5/P6招生情境；非學校排名、非志願判定，未對外聯絡。</p>'
+        output += '<details class="fold-panel"><summary>策略情境與完整結論</summary>' + rich(s.get('context')) + rich(s.get('main_conclusion')) + '</details><h3>六類切入方向</h3><div class="segments">'
+        for segment in items(s.get('segments')):
             sg = obj(segment)
-            output += '<article class="card">'
+            output += '<article class="card promo-segment">'
             if sg:
-                output += f'<h4>{esc(sg.get("name"))}</h4><div class="rich">' + rich({LABELS[field]: sg.get(field) for field in ("rationale", "offer", "message", "channels")}) + '</div><p>相關學校：' + self.school_links(sg.get("school_ids")) + '</p>'
-                extras = {k: v for k, v in sg.items() if k not in {"name", "rationale", "offer", "message", "channels", "school_ids"}}
+                output += '<h4>' + esc(sg.get('name')) + '</h4><b>切入提案</b>' + rich(sg.get('offer')) + '<b>訊息</b>' + rich(sg.get('message'))
+                evidence = '<b>理由</b>' + rich(sg.get('rationale')) + '<b>渠道</b>' + rich(sg.get('channels')) + '<p>相關學校：' + self.school_links(sg.get('school_ids')) + '</p>'
+                extras = {k: v for k, v in sg.items() if k not in {'name', 'rationale', 'offer', 'message', 'channels', 'school_ids'}}
                 if extras:
-                    output += rich(extras)
+                    evidence += rich(extras)
+                output += self.evidence('渠道、相關學校與理由', evidence)
             else:
                 output += rich(segment)
             output += '</article>'
-        if not items(s.get("segments")):
+        if not items(s.get('segments')):
             output += '<p class="missing">未提供策略分群</p>'
-        output += '</div><h3>接觸優先考量（非學校排名）</h3><ol>'
-        for priority in items(s.get("priority")):
+        output += '</div><details class="fold-panel"><summary>逐校接觸考量（非學校排名）</summary><ol>'
+        for priority in items(s.get('priority')):
             p = obj(priority)
-            output += '<li>' + (self.school_links(p.get("school_id")) + '<div class="rich">' + rich({"reason": p.get("reason"), "evidence_gap": p.get("evidence_gap")}) + '</div>' if p else rich(priority)) + '</li>'
-            extras = {k: v for k, v in p.items() if k not in {"school_id", "reason", "evidence_gap"}}
+            output += '<li>' + (self.school_links(p.get('school_id')) + '<div class="rich">' + rich({'reason': p.get('reason'), 'evidence_gap': p.get('evidence_gap')}) + '</div>' if p else rich(priority))
+            extras = {k: v for k, v in p.items() if k not in {'school_id', 'reason', 'evidence_gap'}}
             if extras:
-                output += '<li class="rich">' + rich(extras) + '</li>'
-        output += '</ol><h3>時間線</h3>' + self.strategy_table(s.get("timeline"), ("period", "action", "kpi"), "timeline", "提案時間線與KPI")
-        output += '<h3>渠道與內容</h3>' + self.strategy_table(s.get("content_plan"), ("channel", "audience", "content", "cta"), "content-table", "渠道、受眾、內容與下一步")
-        output += '<h3>成效量度</h3><div class="rich">' + rich(s.get("measurement")) + '</div><h3>策略限制</h3><div class="rich">' + rich(s.get("limitations")) + '</div>'
-        extras = {k: v for k, v in s.items() if k not in {"context", "main_conclusion", "segments", "priority", "timeline", "content_plan", "measurement", "limitations"}}
+                output += rich(extras)
+            output += '</li>'
+        output += '</ol></details><h3>推進步驟</h3>'
+        for i, value in enumerate(items(s.get('timeline'))):
+            record = obj(value)
+            output += '<article class="timeline-step">'
+            if record:
+                output += '<h4>' + esc(record.get('period')) + '</h4>' + rich(record.get('action'))
+                evidence = rich({'kpi': record.get('kpi'), **{k: v for k, v in record.items() if k not in {'period', 'action', 'kpi'}}})
+                output += self.evidence('量度與完整步驟資料', evidence)
+            else:
+                output += rich(value)
+            output += '</article>'
+        output += '<details class="fold-panel"><summary>渠道與內容計劃</summary>'
+        for value in items(s.get('content_plan')):
+            record = obj(value)
+            output += '<article class="channel-card">'
+            if record:
+                output += '<h4>' + esc(record.get('channel')) + '</h4>' + rich({k: v for k, v in record.items() if k != 'channel'})
+            else:
+                output += rich(value)
+            output += '</article>'
+        output += '</details><details class="fold-panel"><summary>成效量度與策略限制</summary><h3>成效量度</h3>' + rich(s.get('measurement')) + '<h3>策略限制</h3>' + rich(s.get('limitations')) + '</details>'
+        extras = {k: v for k, v in s.items() if k not in {'context', 'main_conclusion', 'segments', 'priority', 'timeline', 'content_plan', 'measurement', 'limitations'}}
         if extras:
-            output += '<h3>額外原始策略資料</h3><div class="rich">' + rich(extras) + '</div>'
+            output += self.evidence('額外原始策略資料', rich(extras))
         return output
 
     def strategy_table(self, values, fields, classname, caption):
@@ -708,16 +946,24 @@ class Renderer:
         social = ''.join(self.social_row(key) for key in range(len(self.schools)))
         destinations = ''.join(self.destination(key, True) for key in range(len(self.schools)))
         strategy = self.strategy_html()
-        source_groups = ''.join(f'<details class="source-index card" id="sources-{key}" data-school-key="{key}" open><summary>{esc(obj(school).get("name"))} — 全部來源（{len(self.source_cache[key])}項）</summary>' + self.sources(key) + '</details>' for key, school in enumerate(self.schools))
-        categories = sorted({entry["category"] for entry in self.index})
-        receivers = sorted({name for entry in self.index for name in entry["destination_names"] if name != UNKNOWN})
-        overview = '<div class="kpis">' + ''.join(f'<div class="kpi"><div class="n">{esc(count)}</div><div class="l">{esc(label)}</div><small>{esc(note)}</small></div>' for count, label, note in self.coverage_kpis()) + '</div>'
+        source_groups = ''.join(f'<details class="source-index card" id="sources-{key}" data-school-key="{key}"><summary>{esc(obj(school).get("name"))} — 全部來源（{len(self.source_cache[key])}項）</summary>' + self.sources(key) + '</details>' for key, school in enumerate(self.schools))
+        categories = sorted({entry['category'] for entry in self.index})
+        receivers = sorted({name for entry in self.index for name in entry['destination_names'] if name != UNKNOWN})
+        kpis = self.coverage_kpis()
+        short_labels = ['研究學校', '小學總數已核實', '至少一級有實數', '標準小六有實數', '有具名升學結果', '有接收校逐校人數']
+        short_notes = ['依行政區研究範圍', '含保留歷史學年', '不代表六級全齊', '在籍數非畢業人數', '結果非家長志願', '不代表完整分佈']
+        complete_summary = all(number(obj(self.data.get('summary')).get(field)) is not None for field in ('verified_total_count', 'verified_grade_count', 'verified_p6_count', 'verified_destinations_count', 'verified_destination_school_counts_count'))
+        if len(kpis) == 6 and complete_summary:
+            overview = '<div class="kpis">' + ''.join(f'<div class="kpi"><div class="n">{esc(count)}</div><div class="l">{esc(short_labels[i])}</div><small>{esc(short_notes[i])}</small></div>' for i, (count, label, note) in enumerate(kpis)) + '</div>'
+        else:
+            overview = '<div class="kpis">' + ''.join(f'<div class="kpi"><div class="n">{esc(count)}</div><div class="l">{esc(label)}</div></div>' for count, label, note in kpis) + '</div>'
+        definitions = '<dl class="kv">' + ''.join('<dt>' + esc(label) + '</dt><dd>' + rich(note) + '</dd>' for count, label, note in kpis) + '</dl>'
         categories_options = ''.join(f'<option value="{esc(category)}">{esc(category)}</option>' for category in categories)
         receiver_options = ''.join(f'<option value="{esc(receiver)}">{esc(receiver)}</option>' for receiver in receivers)
-        nav = [('overview', '總覽'), ('roster', '人數名冊'), ('profiles', '學校詳情'), ('destinations', '升中流向'), ('social', '社媒'), ('promo', '宣傳策略'), ('method', '來源')]
+        nav = [('overview', '重點'), ('profiles', '找學校'), ('roster', '逐級比較'), ('destinations', '升中去向'), ('social', '社媒'), ('promo', '宣傳策略'), ('method', '來源')]
         nav_html = '<nav aria-label="主要導航"><div class="wrap"><a class="brand" href="../">← 返回全站</a><ul>' + ''.join(f'<li><a href="#{anchor}">{label}</a></li>' for anchor, label in nav) + '</ul></div></nav>'
-        payload = json.dumps({"data": self.data, "index": self.index}, ensure_ascii=False, separators=(",", ":"), allow_nan=False)
-        payload = payload.replace("&", "\\u0026").replace("<", "\\u003c").replace(">", "\\u003e").replace("\u2028", "\\u2028").replace("\u2029", "\\u2029")
+        payload = json.dumps({'data': self.data, 'index': self.index}, ensure_ascii=False, separators=(',', ':'), allow_nan=False)
+        payload = payload.replace('&', '\\u0026').replace('<', '\\u003c').replace('>', '\\u003e').replace('\u2028', '\\u2028').replace('\u2029', '\\u2029')
         head = f'''<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -728,42 +974,45 @@ class Renderer:
 <meta name="description" content="{esc(DESCRIPTION)}">
 <link rel="canonical" href="{CANONICAL}">
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="西貢區小學全景資料">
+<meta property="og:site_name" content="西貢小學研究指南">
 <meta property="og:title" content="{esc(TITLE)}">
 <meta property="og:description" content="{esc(DESCRIPTION)}">
 <meta property="og:url" content="{CANONICAL}">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="{esc(TITLE)}">
 <meta name="twitter:description" content="{esc(DESCRIPTION)}">
-<link rel="stylesheet" href="styles.css">
-<script src="app.js" defer></script>
+<link rel="stylesheet" href="styles.css?v=readable20261109">
+<script src="app.js?v=readable20261109" defer></script>
 </head>
 <body>
 <a class="skip" href="#main">跳至主要內容</a>
 '''
         output = head + nav_html
-        output += '<header class="hero"><div class="wrap"><div class="eyebrow">SAI KUNG DISTRICT · 按行政區研究範圍分類 · 公開資料</div><h1>西貢區小學全景：<em>實際資料</em>與升中支援</h1><p class="lede">逐校查看人數、學年、活動、接收中學、社媒身份與來源。未公開／未核實就是資料缺口，不以班數推算。策略以中學P5/P6招生為暫定情境，非學校排名。</p>'
-        output += f'<div class="meta"><span class="badge">整體核實日期：{esc(self.data.get("checked_date"))}</span><span class="badge">不跨學年合計人數</span><span class="badge">官津／直資／私立／國際／特殊依輸入分類</span></div>'
-        output += '<div class="downloads"><a href="data.json" download>完整學校JSON</a><a href="strategy.json" download>完整策略JSON</a><a href="report.md" download>研究報告Markdown</a></div></div></header><main id="main">'
-        output += '<section id="overview"><div class="wrap"><h2>總覽：看資料覆蓋，不合計混年人數</h2><p class="sub">以下只計學校紀錄數及數字資料覆蓋校數，不代表研究母名單已完整、數字已同年或公布涵蓋全屆。資料完整性以來源與缺口為準。</p>' + overview
-        output += '<div class="note-box rich"><b>研究範圍與邊界：</b>' + rich(self.data.get("scope_notes")) + '</div><details class="card"><summary>原始研究摘要（非跨年人數總計）</summary><div class="rich">' + rich(self.data.get("summary")) + '</div></details></div></section>'
-        output += '<section id="roster"><div class="wrap"><span id="classes"></span><h2>人數名冊：實際數字、學年與逐項來源</h2><p class="sub">P6突出顯示；P1–P6無相應紀錄時標示未公開／未核實。國際／特殊學制請展開學校詳情閱讀全部原始年級及備註。班數另列為小字，不推算、不加總。</p><noscript><div class="note-box">JavaScript未啟用：以下仍有全部學校資料、可展開詳情及完整下載。互動篩選與當前篩選匯出需要JavaScript。</div></noscript>'
-        output += '<div class="filters js-only"><label class="field" for="q">搜尋學校、活動或接收中學<input id="q" type="search" placeholder="學校名／活动／接收中學" autocomplete="off" aria-controls="rosterBody cards socialBody"></label><label class="field" for="fType">學校類別<select id="fType"><option value="">全部類別</option>' + categories_options + '</select></label>'
-        output += '<label class="field" for="sortSchools">排序（數字未知放末）<select id="sortSchools"><option value="name">校名</option><option value="p6-desc">小六人數由多至少</option><option value="p6-asc">小六人數由少至多</option><option value="total-desc">全校人數由多至少</option><option value="total-asc">全校人數由少至多</option></select></label><div class="filter-footer"><label class="check"><input type="checkbox" id="knownP6">只看有已知小六人數</label><label class="check"><input type="checkbox" id="showClasses" checked>顯示班數小字</label><button type="button" id="clearFilters">清除全部篩選</button></div></div>'
-        output += f'<p class="count" id="rosterCount" role="status" aria-live="polite" aria-atomic="true">顯示全部 {len(self.schools)} 間學校</p><p class="filter-note">數字排序僅為閱覽方便，學年不同不可直接比較，更不是學校質素排名。多條小六紀錄不相加，無單一排序值時放末。</p><div class="actions js-only"><button type="button" id="exportJSON">匯出目前篩選JSON</button><button type="button" id="exportCSV">匯出目前篩選人數CSV</button></div><p id="exportStatus" role="status" aria-live="polite" class="small"></p><p class="small">JSON保留所選學校完整原始資料及全研究背景；CSV為人數長表，逐項分學年，勿把獨立小六行重複相加。</p>'
-        grade_headers = ''.join('<th scope="col"' + (' class="p6-cell"' if grade == 'P6' else '') + '>' + grade + '實數</th>' for grade in ('P1', 'P2', 'P3', 'P4', 'P5', 'P6'))
-        output += '<div class="tablewrap" tabindex="0" role="region" aria-label="實際學生人數名冊，可橫向捲動"><table class="roster"><caption>全部學校的實際人數名冊（手機可橫向捲動）</caption><thead><tr><th scope="col">學校</th><th scope="col">類別</th><th scope="col">人數紀錄學年</th><th scope="col">全校實數</th>' + grade_headers + '</tr></thead><tbody id="rosterBody">' + roster + '</tbody></table></div><p class="empty" id="schoolEmpty" hidden>沒有符合條件的學校；可清除篩選重新查看。</p></div></section>'
-        output += '<section id="profiles"><div class="wrap"><h2>學校詳情：事實、觀察與建議分開</h2><p class="sub">每校完整內容已在初始HTML中。點擊校名展開；人數缺口、社媒身份與接收中學名單的公布範圍請一併閱讀。</p><div class="actions js-only"><button type="button" id="expandAll">展開目前學校</button><button type="button" id="collapseAll">收起學校詳情</button></div><div class="cards" id="cards">' + cards + '</div></div></section>'
-        output += '<section id="destinations"><div class="wrap"><h2>升中流向：公開接收中學紀錄</h2><p class="sub">全部已提供紀錄，不截取前幾名。不把去向當第一志願；部分公布、獲錄取、派位或一條龍關係需依每校備註區分。百分比不自行計算，也不由部分名單推定全屆。</p><div class="filters js-only"><label class="field" for="destinationQuery">搜尋接收中學<input id="destinationQuery" type="search" placeholder="接收中學名稱" aria-controls="destinationBlocks"></label><label class="field" for="destinationSchool">接收中學篩選<select id="destinationSchool"><option value="">全部接收中學</option>' + receiver_options + '</select></label><div class="filter-footer"><button id="clearDestinations" type="button">清除接收中學條件</button><span class="small">同時受上方學校篩選控制；不改動各校原始資料。</span></div></div><p id="destinationCount" class="count" role="status" aria-live="polite" aria-atomic="true">全部學校公開去向紀錄</p><p id="destinationEmpty" class="empty" hidden>沒有符合條件的去向紀錄。</p><div id="destinationBlocks">' + destinations + '</div></div></section>'
-        output += '<section id="social"><div class="wrap"><h2>社媒總覽：連結、原始狀態與身份證據</h2><p class="sub">每校固定列Facebook、Instagram及小紅書，其他平台另列。未找到／未核實不代表不存在；校友會、第三方與官方已核實分開識讀，不混合統計帳戶數。</p><div class="tablewrap" tabindex="0" role="region" aria-label="全部學校社媒身份總覽，可橫向捲動"><table class="social-table"><caption>各平台保留帳戶原始狀態與證據</caption><thead><tr><th scope="col">學校</th><th scope="col">Facebook</th><th scope="col">Instagram</th><th scope="col">小紅書</th><th scope="col">其他平台</th></tr></thead><tbody id="socialBody">' + social + '</tbody></table></div></div></section>'
-        output += '<section id="promo"><div class="wrap"><h2>宣傳策略：分群、切入、時間線与量度</h2>' + strategy + '</div></section>'
-        output += '<section id="method"><div class="wrap"><h2>來源、研究缺口與使用限制</h2><div class="note-box warning">本頁不作選校排名。所有数字只反映來源指定學年；未公開／未核實並非0。班數、人數、屆別總人數及去向公布覆蓋不可互相替代。研究資料與策略均應以最新官方發布再核對。</div><h3>研究未完成／失敗紀錄</h3><div class="rich">' + rich(self.data.get("failures")) + '</div>'
-        output += '<h3>資料聯結與格式提醒</h3><div class="rich">' + (rich(self.warnings) if self.warnings else '<p>沒有產生器格式提醒；這不代表研究事實已由產生器核實。</p>') + '</div>'
-        output += '<h4>未能對應來源ID</h4><div class="rich">' + (rich(self.unresolved) if self.unresolved else '<p>所有已提供來源ID可對應；未提供來源ID者仍標示缺口。</p>') + '</div><h3>逐校完整來源</h3><div id="sourceGroups">' + source_groups + '</div>'
-        extras = {k: v for k, v in self.data.items() if k not in {"checked_date", "scope_notes", "schools", "failures", "summary", "raw_data", "integration"} and not k.endswith("_path")}
+        output += '<header class="hero"><div class="wrap"><div class="eyebrow">SAI KUNG DISTRICT · 公開資料研究</div><h1>西貢小學研究指南</h1><p class="lede">從學校卡片查看人數、活動與升中資料，再按需要展開證據和來源。</p>'
+        output += '<div class="quick-start"><a href="#profiles">搜尋及查看學校</a><a href="#roster">逐級人數比較</a><a href="report.md" download>下載研究報告</a></div>'
+        output += '<p class="mini-note">研究核實日期：' + esc(self.data.get('checked_date')) + ' · 非學校排名</p></div></header><main id="main">'
+        output += '<section id="overview"><div class="wrap"><div class="section-heading"><h2>先看重點</h2></div><p class="overview-note">活動與升中路徑可逐校閱讀；實際人數仍有不少缺口，不能據此估算整區招生市場。</p>' + overview
+        output += '<ul class="reading-guide"><li>數字是資料覆蓋校數，含不同學年，不是同年學生市場總量。</li><li>西貢行政區不等同95校網；國際及特殊學制按原級名呈現。</li><li>未公開／未核實不是0，班數和學額不能代替實際人數。</li><li>派位／錄取結果不等於家長偏好，部分名單也不是完整分佈。</li></ul>'
+        output += '<details class="fold-panel"><summary>數字定義與完整研究摘要</summary>' + definitions + '<h3>原始研究摘要</h3>' + rich(self.data.get('summary')) + '</details><details class="fold-panel"><summary>研究範圍與邊界</summary>' + rich(self.data.get('scope_notes')) + '</details></div></section>'
+        output += '<section id="profiles"><div class="wrap"><div class="section-heading"><h2>找學校，先讀摘要</h2></div><p class="sub">點擊卡片展開六個資料分節；摘要的歷史實數已標明學年，不代表當期人數。</p><noscript><div class="note-box">JavaScript未啟用：全部學校資料仍可閱讀、展開及下載；互動篩選與當前篩選匯出需要JavaScript。</div></noscript>'
+        output += '<div class="filters js-only"><label class="field" for="q">搜尋學校、活動或接收中學<input id="q" type="search" placeholder="校名／活動／接收中學" autocomplete="off" aria-controls="rosterBody cards socialBody"></label><label class="field" for="fType">學校類別<select id="fType"><option value="">全部類別</option>' + categories_options + '</select></label>'
+        output += '<label class="field" for="sortSchools">排序依主紀錄（未知放末）<select id="sortSchools"><option value="name">校名</option><option value="p6-desc">小六人數由多至少</option><option value="p6-asc">小六人數由少至多</option><option value="total-desc">小學段總數由多至少</option><option value="total-asc">小學段總數由少至多</option></select></label><div class="filter-footer"><label class="check"><input type="checkbox" id="knownP6">只看主紀錄有已知小六人數</label><button type="button" id="clearFilters">清除全部篩選</button></div></div>'
+        output += f'<p class="count" id="rosterCount" role="status" aria-live="polite" aria-atomic="true">顯示全部 {len(self.schools)} 間學校</p><p class="filter-note">排序依主紀錄；摘要可另顯示已核實歷史資料。不同學年不可直接比較，多條小六紀錄不相加，非學校排名。</p><div class="actions js-only"><button type="button" id="expandAll">展開目前學校</button><button type="button" id="collapseAll">收起學校詳情</button><button type="button" id="exportJSON">匯出篩選JSON</button><button type="button" id="exportCSV">匯出篩選人數CSV</button></div><p id="exportStatus" role="status" aria-live="polite" class="small"></p><p class="empty" id="schoolEmpty" hidden>沒有符合條件的學校；可清除篩選重新查看。</p><div class="cards" id="cards">' + cards + '</div></div></section>'
+        output += '<section id="roster"><div class="wrap"><span id="classes"></span><details class="fold-panel"><summary><h2>逐級比較表（展開查看）</h2></summary><p class="mini-note">僅列主紀錄；各項年份以該項為準。非標準學制的全部原年級及備註請看校卡。班數不推算人數。</p><label class="check js-only"><input type="checkbox" id="showClasses" checked>顯示班數小字</label>'
+        grade_headers = ''.join('<th scope="col"' + (' class="p6-cell"' if grade == 'P6' else '') + '>' + grade + '</th>' for grade in ('P1', 'P2', 'P3', 'P4', 'P5', 'P6'))
+        output += '<div class="tablewrap" tabindex="0" role="region" aria-label="逐級人數比較，可橫向捲動"><table class="roster"><caption>各校主紀錄：小學段總數與逐級實數</caption><thead><tr><th scope="col">學校</th><th scope="col">學年</th><th scope="col">小學段總數</th>' + grade_headers + '</tr></thead><tbody id="rosterBody">' + roster + '</tbody></table></div></details></div></section>'
+        output += '<section id="destinations"><div class="wrap"><div class="section-heading"><h2>公開升中去向</h2></div><p class="sub">逐校、逐屆展開完整已提供名單；去向非志願，百分比只顯示來源公布值。</p><div class="filters js-only"><label class="field" for="destinationQuery">搜尋接收中學<input id="destinationQuery" type="search" placeholder="接收中學名稱" aria-controls="destinationBlocks"></label><label class="field" for="destinationSchool">接收中學篩選<select id="destinationSchool"><option value="">全部接收中學</option>' + receiver_options + '</select></label><div class="filter-footer"><button id="clearDestinations" type="button">清除接收中學條件</button><span class="small">同時受上方學校篩選控制；不改校卡原始完整去向。</span></div></div><p id="destinationCount" class="count" role="status" aria-live="polite" aria-atomic="true">全部學校公開去向紀錄</p><p id="destinationEmpty" class="empty" hidden>沒有符合條件的去向紀錄。</p><div id="destinationBlocks">' + destinations + '</div></div></section>'
+        output += '<section id="social"><div class="wrap"><div class="section-heading"><h2>社交平台</h2></div><p class="sub">各校卡片有手機友好的帳戶連結；身份證據可按需展開。校友會與第三方不當作官方帳戶。</p><details class="fold-panel"><summary>全部學校社媒比較（展開查看）</summary><div class="tablewrap" tabindex="0" role="region" aria-label="全部學校社媒身份總覽，可橫向捲動"><table class="social-table"><caption>各平台保留帳戶原始狀態與身份證據</caption><thead><tr><th scope="col">學校</th><th scope="col">Facebook</th><th scope="col">Instagram</th><th scope="col">小紅書</th><th scope="col">其他平台</th></tr></thead><tbody id="socialBody">' + social + '</tbody></table></div></details></div></section>'
+        output += '<section id="promo"><div class="wrap"><div class="section-heading"><h2>宣傳策略：先適配，再接觸</h2></div>' + strategy + '</div></section>'
+        output += '<section id="method"><div class="wrap"><div class="section-heading"><h2>來源與使用限制</h2></div><p class="mini-note">來源ID對應不等於事實已核實；所有公開資料仍須以最新官方發布再確認。</p><div class="downloads"><a href="data.json" download>完整學校JSON</a><a href="strategy.json" download>完整策略JSON</a><a href="report.md" download>研究報告Markdown</a></div>'
+        technical = '<h3>研究未完成／失敗紀錄</h3>' + (rich(self.data.get('failures')) if self.data.get('failures') else '<p>未列出研究失敗紀錄；逐校缺口仍保留。</p>')
+        technical += '<h3>資料聯結與格式提醒</h3>' + (rich(self.warnings) if self.warnings else '<p>沒有產生器格式提醒；這不代表研究事實已由產生器核實。</p>')
+        technical += '<h4>未能對應來源ID</h4>' + (rich(self.unresolved) if self.unresolved else '<p>所有已提供來源ID可對應；未提供來源ID者仍標示缺口。</p>')
+        output += '<details class="fold-panel"><summary>研究方法、失敗紀錄與技術提醒</summary>' + technical + '</details><h3>逐校完整來源</h3><div id="sourceGroups">' + source_groups + '</div>'
+        extras = {k: v for k, v in self.data.items() if k not in {'checked_date', 'scope_notes', 'schools', 'failures', 'summary', 'raw_data', 'integration'} and not k.endswith('_path')}
         if extras:
-            output += '<h3>其他研究原始欄位</h3><div class="rich">' + rich(extras) + '</div>'
-        output += '</div></section></main><footer><div class="wrap"><b>西貢區小學全景資料</b> · 整體核實日期：' + esc(self.data.get("checked_date")) + '<br>保留原GitHub Pages網址。沒有登入、追蹤碼、網路字型、外部JavaScript／CDN；未對外聯絡。<br><a href="../">返回全站</a> · <a href="data.json" download>完整資料</a> · <a href="strategy.json" download>策略</a> · <a href="report.md" download>報告</a></div></footer>\n'
+            output += self.evidence('其他研究原始欄位', rich(extras))
+        output += '</div></section></main><footer><div class="wrap"><b>西貢小學研究指南</b> · 核實日期：' + esc(self.data.get('checked_date')) + '<br>保留原GitHub Pages網址；沒有登入或追蹤碼，未對外聯絡。<br><a href="../">返回全站</a> · <a href="data.json" download>完整資料</a> · <a href="strategy.json" download>策略</a> · <a href="report.md" download>報告</a></div></footer>\n'
         output += '<script id="site-data" type="application/json">' + payload + '</script>\n</body>\n</html>\n'
         return output
 

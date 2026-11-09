@@ -166,7 +166,8 @@ class StaticBuildContracts(unittest.TestCase):
                     self.assertIn(href[1:], parser.ids, f'Broken local hash {href}')
             scripts = [(tag, attrs) for tag, attrs in parser.tags if tag == 'script']
             self.assertEqual(len(scripts), 2)
-            self.assertTrue(any(attrs.get('src') == 'app.js' for _, attrs in scripts))
+            self.assertTrue(any(attrs.get('src') == 'app.js?v=readable20261109' for _, attrs in scripts))
+            self.assertTrue(any(tag == 'link' and attrs.get('href') == 'styles.css?v=readable20261109' for tag, attrs in parser.tags))
             self.assertEqual(json.loads((output / 'manus-routes.json').read_text())['routes'][0]['path'], '/sai-kung-primary-schools/')
             report = (output / 'report.md').read_text(encoding='utf-8')
             self.assertIn('合成接收中學12', report)
@@ -449,6 +450,114 @@ console.log('PASS Node: history/verification/scope/applicability/class years/sou
 '''
         result = subprocess.run(['node', '-e', script, str(ROOT / 'app.js')], capture_output=True, text=True)
         self.assertEqual(result.returncode, 0, result.stderr)
+
+
+    def test_readable_static_structure_and_fold_defaults(self):
+        data, strategy = fixture()
+        renderer = BUILDER.Renderer(data, strategy)
+        page = renderer.build(BUILDER.read_favicon())
+        parsed = PageParser(); parsed.feed(page)
+        self.assertLess(page.index('<section id="profiles"'), page.index('<section id="roster"'))
+        self.assertIn('<h1>西貢小學研究指南</h1>', page)
+        self.assertIn('<a href="#profiles">搜尋及查看學校</a>', page)
+        self.assertIn('排序依主紀錄', page)
+        for classname in ('source-index', 'history-record', 'evidence-panel', 'fold-panel'):
+            details = [attrs for tag, attrs in parsed.tags if tag == 'details' and classname in attrs.get('class', '').split()]
+            self.assertTrue(details, classname)
+            self.assertTrue(all('open' not in attrs for attrs in details), classname)
+        sections = [attrs for tag, attrs in parsed.tags if tag == 'details' and 'profile-section' in attrs.get('class', '').split()]
+        self.assertEqual(len(sections), 6 * len(data['schools']))
+        self.assertEqual(sum('open' in attrs for attrs in sections), len(data['schools']))
+        for key in range(len(data['schools'])):
+            card = renderer.school_card(key)
+            summary = card.split('<summary>', 1)[1].split('</summary>', 1)[0]
+            self.assertNotIn('<a ', summary, 'Summary must not mix links with toggle interaction')
+            for classname in ('school-name', 'summary-stats', 'stat-year', 'social-chip', 'summary-expand'):
+                self.assertIn(classname, summary)
+            for heading in ('學生人數', '重點活動', '升中去向與制度', '社交平台', '宣傳切入與聯絡', '來源與資料限制'):
+                self.assertIn('<summary>' + heading + '</summary>', card)
+        self.assertIn('逐級比較表（展開查看）', page)
+        compact = renderer.roster_row(0)
+        self.assertNotIn('不可加總', compact, 'Long whole-school note belongs in profile evidence')
+        self.assertNotIn('真實0契約', compact)
+        self.assertIn('來源 1', compact)
+
+    def test_readable_summary_latest_official_history_and_p6_applicability(self):
+        data, strategy = fixture()
+        school = data['schools'][0]
+        school['enrolment'] = {'academic_year': '2100/01', 'total': None, 'total_verification': 'not_verified', 'grades': [], 'p6': {'students': None, 'verification': 'not_verified', 'applicability': 'standard_primary_final_year'}}
+        def historical(year, total, status='official_exact', p6=0):
+            return {'academic_year': year, 'total': total, 'total_verification': status,
+                    'p6': {'students': p6, 'verification': status, 'applicability': 'standard_primary_final_year'}}
+        school['enrolment_history'] = [historical('2095/96', 25, p6=5), historical('2097/98', 0), historical('2098/99', 450, 'official_table_with_unresolved_internal_conflict'), historical('2099/00', 99, 'media_report_not_official_exact'), historical('2100/01', 120, 'out_of_primary_scope')]
+        before = json.dumps(data, ensure_ascii=False, sort_keys=True)
+        renderer = BUILDER.Renderer(data, strategy)
+        total, history = renderer.summary_metric(school, 'total')
+        self.assertTrue(history)
+        self.assertEqual(total['value'], 0)
+        self.assertEqual(total['academic_year'], '2097/98')
+        p6, history = renderer.summary_metric(school, 'p6')
+        self.assertTrue(history)
+        self.assertEqual(p6['value'], 0)
+        self.assertIsNone(renderer.index[0]['total_sort'], 'Historical summary must not change sorting contract')
+        self.assertFalse(renderer.index[0]['p6_known'])
+        card = renderer.school_card(0)
+        self.assertIn('歷史資料 · 2097/98', card.split('</summary>', 1)[0])
+        renderer.build(BUILDER.read_favicon())
+        self.assertEqual(before, json.dumps(data, ensure_ascii=False, sort_keys=True))
+        school['enrolment']['p6']['applicability'] = 'not_a_standard_primary_P6'
+        part, history = renderer.summary_metric(school, 'p6')
+        self.assertFalse(history)
+        self.assertEqual(part['applicability'], 'not_a_standard_primary_P6')
+        self.assertIn('不適用（非標準小六學制）', renderer.school_card(0).split('</summary>', 1)[0])
+
+    def test_readable_social_uses_normalized_identity_not_status_keywords(self):
+        data, strategy = fixture()
+        renderer = BUILDER.Renderer(data, strategy)
+        self.assertEqual(renderer.social_status({'status': '已核實官方校友 fake official'}), ('unverified', '核實狀態未標準化'))
+        self.assertEqual(renderer.social_status({'verification_status_normalized': 'other_scope_not_counted', 'status': '官方帳戶'}), ('other', '其他範圍帳戶'))
+        self.assertEqual(renderer.social_status({'verification_status_normalized': 'verified_identity', 'account_scope': 'other_organisation_or_subaccount'}), ('other', '其他範圍帳戶'))
+        record = {'platform': 'Facebook', 'url': 'https://example.invalid/fb', 'account': '合成帳戶', 'verification_status_normalized': 'verified_identity', 'status': '原始狀態完整保留', 'verification': '完整長身份證據不可截斷', 'extra': {'safe': '保留'}}
+        output = renderer.social_entry(0, record)
+        self.assertIn('social-chip verified', output)
+        self.assertIn('完整長身份證據不可截斷', output)
+        self.assertIn('原始狀態完整保留', output)
+        self.assertIn('evidence-panel', output)
+        self.assertNotIn(' open', output)
+
+    def test_readable_destination_limit_visible_before_evidence(self):
+        data, strategy = fixture()
+        renderer = BUILDER.Renderer(data, strategy)
+        d = {'academic_year': '2099/00', 'coverage': '部分公開名單；其餘去向未列。',
+             'completeness_verified': False, 'schools': [{'name': '合成中學', 'count': 3}],
+             'source_ids': [1]}
+        self.assertIn('部分名單；不可視作全屆分佈', renderer.destination_summary(d))
+        output = renderer.destination_record(0, d)
+        visible_prefix = output.split('<details class="evidence-panel">', 1)[0]
+        self.assertIn('部分名單；不可視作全屆分佈', visible_prefix)
+        d['coverage'] = '公開列項，未獨立證明全屆分母。'
+        self.assertIn('名單完整性未核實', renderer.destination_summary(d))
+        self.assertIn('名單完整性未核實', renderer.destination_record(0, d).split('<details class="evidence-panel">', 1)[0])
+
+    def test_javascript_matching_destination_opens_all_ancestors(self):
+        script = r'''
+const assert = require('node:assert/strict');
+const { openAncestors } = require(process.argv[1]);
+const outer = { open:false, closest:()=>outer, parentElement:null };
+const inner = { open:false, closest:()=>inner, parentElement:{closest:()=>outer} };
+const row = {closest:()=>inner};
+openAncestors(row); assert.equal(inner.open,true); assert.equal(outer.open,true);
+openAncestors({closest:()=>null});
+// Clearing a filter must not close an already opened user's fold.
+openAncestors(row); assert.equal(inner.open,true);
+console.log('PASS Node: matched receiver opens cohort and school folds without closing user choices');
+'''
+        result = subprocess.run(['node', '-e', script, str(ROOT / 'app.js')], capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        javascript = (ROOT / 'app.js').read_text(encoding='utf-8')
+        self.assertIn('if (hasFilter) openAncestors(row)', javascript)
+        self.assertIn("['roster', 'classes', 'social'].includes(id)", javascript)
+        self.assertIn('tr[data-destination]:not([data-observed="false"])', javascript)
 
 
 if __name__ == '__main__':

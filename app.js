@@ -74,6 +74,13 @@
     pre.textContent = JSON.stringify(schools[key], null, 2);
     pre.dataset.loaded = 'true';
   }
+  function openAncestors(node) {
+    let detail = node.closest('details');
+    while (detail) {
+      detail.open = true;
+      detail = detail.parentElement ? detail.parentElement.closest('details') : null;
+    }
+  }
   function filtered(index, state) {
     const query = state.query.trim().toLocaleLowerCase();
     const rows = index.filter(item => (!query || item.search.toLocaleLowerCase().includes(query)) &&
@@ -94,7 +101,7 @@
   }
   // Pure functions may also be contract-tested by Node without a browser or dependency.
   if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { csvCell, makeCSV, filtered, readable, populateRawRecord };
+    module.exports = { csvCell, makeCSV, filtered, readable, populateRawRecord, openAncestors };
     return;
   }
   const payload = document.getElementById('site-data');
@@ -120,6 +127,7 @@
     const visibleSchools = new Set(current.map(item => String(item.key)));
     const term = destinationQuery.value.trim().toLocaleLowerCase();
     const receiver = destinationSelect.value;
+    const hasFilter = Boolean(term || receiver);
     let schoolCount = 0, entryCount = 0;
     destinationBlocks.forEach(block => {
       let visibleEntries = 0;
@@ -127,9 +135,11 @@
         const name = row.dataset.destination;
         const show = visibleSchools.has(block.dataset.schoolKey) && (!term || name.toLocaleLowerCase().includes(term)) && (!receiver || name === receiver);
         row.hidden = !show;
-        if (show) visibleEntries += 1;
+        if (show) {
+          visibleEntries += 1;
+          if (hasFilter) openAncestors(row);
+        }
       });
-      const hasFilter = Boolean(term || receiver);
       block.hidden = !visibleSchools.has(block.dataset.schoolKey) || (hasFilter && visibleEntries === 0);
       if (!block.hidden) { schoolCount += 1; entryCount += visibleEntries; }
     });
@@ -188,8 +198,13 @@
       q.value = ''; category.value = ''; p6Only.checked = false;
       destinationQuery.value = ''; destinationSelect.value = ''; render();
     }
-    let detail = target.closest('details');
-    while (detail) { detail.open = true; detail = detail.parentElement.closest('details'); }
+    openAncestors(target);
+    // Section anchors remain useful when their comparison table is folded.
+    if (['roster', 'classes', 'social'].includes(id)) {
+      const section = target.closest('section');
+      const fold = section && section.querySelector('details.fold-panel');
+      if (fold) fold.open = true;
+    }
     if (card) card.open = true;
     window.requestAnimationFrame(() => {
       target.scrollIntoView({ block: 'start', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
@@ -203,5 +218,10 @@
   window.addEventListener('afterprint', () => { printDetails.forEach((open, detail) => { detail.open = open; }); printDetails.clear(); });
   document.documentElement.classList.add('js-ready');
   window.addEventListener('hashchange', deepLink);
+  // Clicking the current hash does not fire hashchange, but should reopen it.
+  document.addEventListener('click', event => {
+    const link = event.target.closest && event.target.closest('a[href^="#"]');
+    if (link && link.getAttribute('href') === window.location.hash) deepLink();
+  });
   render(); deepLink();
 })();
